@@ -1,0 +1,1788 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: William Blake Galbreath <Blake.Galbreath@GMail.com>
+Date: Thu, 10 Dec 2020 16:44:54 -0600
+Subject: [PATCH] Configurable entity base attributes
+
+
+diff --git a/net/minecraft/world/entity/GlowSquid.java b/net/minecraft/world/entity/GlowSquid.java
+index d0313fd5368baa53ec511c8c07fc78a1f1ecec4e..898b1e01026ec1f44cfe60e9f18a997c86e30594 100644
+--- a/net/minecraft/world/entity/GlowSquid.java
++++ b/net/minecraft/world/entity/GlowSquid.java
+@@ -45,6 +45,13 @@ public class GlowSquid extends Squid {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.glowSquidMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected ParticleOptions getInkParticle() {
+         return ParticleTypes.GLOW_SQUID_INK;
+diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
+index 8c2bdb1775f7c4110c5f967b1052eba6a8fcbbfa..d1f7da0f4adc4609247c349d7ccdb0e6bba9b8f8 100644
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -311,6 +311,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+     protected LivingEntity(EntityType<? extends LivingEntity> entityType, Level level) {
+         super(entityType, level);
+         this.attributes = new AttributeMap(DefaultAttributes.getSupplier(entityType), this); // Purpur - Ridables
++        this.initAttributes(); // Purpur - Configurable entity base attributes
+         this.craftAttributes = new CraftAttributeMap(this.attributes); // CraftBukkit
+         // CraftBukkit - this.setHealth(this.getMaxHealth()) inlined and simplified to skip the instanceof check for Player, as getBukkitEntity() is not initialized in constructor
+         this.entityData.set(LivingEntity.DATA_HEALTH_ID, this.getMaxHealth());
+@@ -324,6 +325,8 @@ public abstract class LivingEntity extends Entity implements Attackable {
+         this.brain = this.makeBrain(new Dynamic<>(nbtOps, nbtOps.createMap(ImmutableMap.of(nbtOps.createString("memories"), nbtOps.emptyMap()))));
+     }
+ 
++    protected void initAttributes() {}// Purpur - Configurable entity base attributes
++
+     public Brain<?> getBrain() {
+         return this.brain;
+     }
+diff --git a/net/minecraft/world/entity/ambient/Bat.java b/net/minecraft/world/entity/ambient/Bat.java
+index e7ea944e77175ee4051b8e7361c502d0cc2115d5..ecbec552e5cd1935f57872d2fb502d3e9743e3d8 100644
+--- a/net/minecraft/world/entity/ambient/Bat.java
++++ b/net/minecraft/world/entity/ambient/Bat.java
+@@ -94,6 +94,21 @@ public class Bat extends AmbientCreature {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.batMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.batScale);
++        this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(this.level().purpurConfig.batFollowRange);
++        this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(this.level().purpurConfig.batKnockbackResistance);
++        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.level().purpurConfig.batMovementSpeed);
++        this.getAttribute(Attributes.FLYING_SPEED).setBaseValue(this.level().purpurConfig.batFlyingSpeed);
++        this.getAttribute(Attributes.ARMOR).setBaseValue(this.level().purpurConfig.batArmor);
++        this.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(this.level().purpurConfig.batArmorToughness);
++        this.getAttribute(Attributes.ATTACK_KNOCKBACK).setBaseValue(this.level().purpurConfig.batAttackKnockback);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public boolean isFlapping() {
+         return !this.isResting() && this.tickCount % 10.0F == 0.0F;
+diff --git a/net/minecraft/world/entity/animal/Bee.java b/net/minecraft/world/entity/animal/Bee.java
+index af0cf64b4c74d290dec8032f8a6127867e301130..3cdfded14a2fb74e3f345e893e60364b6b810075 100644
+--- a/net/minecraft/world/entity/animal/Bee.java
++++ b/net/minecraft/world/entity/animal/Bee.java
+@@ -472,6 +472,14 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
+         return beehiveBlockEntity != null && beehiveBlockEntity.isFireNearby();
+     }
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.beeMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.beeScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public int getRemainingPersistentAngerTime() {
+         return this.entityData.get(DATA_REMAINING_ANGER_TIME);
+diff --git a/net/minecraft/world/entity/animal/Cat.java b/net/minecraft/world/entity/animal/Cat.java
+index f066b0acfa0e954f6d71e62962c76afa1f05a4a5..98ce277c5b27591e22daa3c85241be1b8689bfae 100644
+--- a/net/minecraft/world/entity/animal/Cat.java
++++ b/net/minecraft/world/entity/animal/Cat.java
+@@ -118,6 +118,14 @@ public class Cat extends TamableAnimal implements VariantHolder<Holder<CatVarian
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.catMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.catScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.temptGoal = new Cat.CatTemptGoal(this, 0.6, itemStack -> itemStack.is(ItemTags.CAT_FOOD), true);
+diff --git a/net/minecraft/world/entity/animal/Chicken.java b/net/minecraft/world/entity/animal/Chicken.java
+index aba1bf732bb78a24dba1f063d65894fde92789ef..509163f409a5b8988a484aedb2f3ddf042d5eb13 100644
+--- a/net/minecraft/world/entity/animal/Chicken.java
++++ b/net/minecraft/world/entity/animal/Chicken.java
+@@ -68,6 +68,14 @@ public class Chicken extends Animal {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.chickenMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.chickenScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/animal/Cod.java b/net/minecraft/world/entity/animal/Cod.java
+index 6a19086e272363701260801f3c6db9b5c91b8ef5..434e1fabf2e360a8f5f4eefed96e3883aa786d10 100644
+--- a/net/minecraft/world/entity/animal/Cod.java
++++ b/net/minecraft/world/entity/animal/Cod.java
+@@ -25,6 +25,13 @@ public class Cod extends AbstractSchoolingFish {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.codMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public ItemStack getBucketItemStack() {
+         return new ItemStack(Items.COD_BUCKET);
+diff --git a/net/minecraft/world/entity/animal/Cow.java b/net/minecraft/world/entity/animal/Cow.java
+index 656babc0c8810a85eb9f78ced1f3ad9551fdc286..d2a4bfa5334f7361067e4adac36ba5a4a4fa6ad8 100644
+--- a/net/minecraft/world/entity/animal/Cow.java
++++ b/net/minecraft/world/entity/animal/Cow.java
+@@ -55,6 +55,14 @@ public class Cow extends Animal {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.cowMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.cowScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/animal/Dolphin.java b/net/minecraft/world/entity/animal/Dolphin.java
+index 35bce598bb5857356823594d2a001006ce19f835..5b764c686e8759a7b04a7b50708c69629be02c04 100644
+--- a/net/minecraft/world/entity/animal/Dolphin.java
++++ b/net/minecraft/world/entity/animal/Dolphin.java
+@@ -148,6 +148,14 @@ public class Dolphin extends AgeableWaterCreature {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.dolphinMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.dolphinScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Nullable
+     @Override
+     public SpawnGroupData finalizeSpawn(
+diff --git a/net/minecraft/world/entity/animal/Fox.java b/net/minecraft/world/entity/animal/Fox.java
+index 8b0a813f9dd001c6dd108ba7aac04d134a20fbc1..8bf893837586ae2a9b4ef7564d242e16e4863b5d 100644
+--- a/net/minecraft/world/entity/animal/Fox.java
++++ b/net/minecraft/world/entity/animal/Fox.java
+@@ -167,6 +167,14 @@ public class Fox extends Animal implements VariantHolder<Fox.Variant> {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.foxMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.foxScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+         super.defineSynchedData(builder);
+diff --git a/net/minecraft/world/entity/animal/IronGolem.java b/net/minecraft/world/entity/animal/IronGolem.java
+index 223c4796f659a24062a719045e484a22d31ab2f0..37a353cbb0e9b16e0fc92bd1bc8194cb4cd3c13a 100644
+--- a/net/minecraft/world/entity/animal/IronGolem.java
++++ b/net/minecraft/world/entity/animal/IronGolem.java
+@@ -90,6 +90,14 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.ironGolemMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.ironGolemScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         if (this.level().purpurConfig.ironGolemPoppyCalm) this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.ReceiveFlower(this)); // Purpur - Iron golem calm anger options
+diff --git a/net/minecraft/world/entity/animal/MushroomCow.java b/net/minecraft/world/entity/animal/MushroomCow.java
+index 1292146341022483f78a9128ef9d7a88089274a0..990723c31aa1040a4e45b9857a18d86287ef91b4 100644
+--- a/net/minecraft/world/entity/animal/MushroomCow.java
++++ b/net/minecraft/world/entity/animal/MushroomCow.java
+@@ -72,6 +72,13 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.mooshroomMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public float getWalkTargetValue(BlockPos pos, LevelReader level) {
+         return level.getBlockState(pos.below()).is(Blocks.MYCELIUM) ? 10.0F : level.getPathfindingCostFromLightLevels(pos);
+diff --git a/net/minecraft/world/entity/animal/Ocelot.java b/net/minecraft/world/entity/animal/Ocelot.java
+index d26a8658c8c56c3b0df4e5908de1ac23ac2dd351..41c42ecbf6aa233bd82000a4bbba3b186cca6a9d 100644
+--- a/net/minecraft/world/entity/animal/Ocelot.java
++++ b/net/minecraft/world/entity/animal/Ocelot.java
+@@ -79,6 +79,14 @@ public class Ocelot extends Animal {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.ocelotMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.ocelotScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public boolean isTrusting() {
+         return this.entityData.get(DATA_TRUSTING);
+     }
+diff --git a/net/minecraft/world/entity/animal/Panda.java b/net/minecraft/world/entity/animal/Panda.java
+index 19aa39af6685a03eb584820853239a3f4fa1a515..5b07dff937c8873300eabecf1c510cf562fae4f3 100644
+--- a/net/minecraft/world/entity/animal/Panda.java
++++ b/net/minecraft/world/entity/animal/Panda.java
+@@ -131,6 +131,15 @@ public class Panda extends Animal {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.pandaMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.pandaScale);
++        setAttributes();
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected boolean canDispenserEquipIntoSlot(EquipmentSlot slot) {
+         return slot == EquipmentSlot.MAINHAND && this.canPickUpLoot();
+@@ -624,7 +633,11 @@ public class Panda extends Animal {
+ 
+     public void setAttributes() {
+         if (this.isWeak()) {
+-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(10.0);
++            // Purpur start - Configurable entity base attributes
++            net.minecraft.world.entity.ai.attributes.AttributeInstance maxHealth = this.getAttribute(Attributes.MAX_HEALTH);
++            maxHealth.setBaseValue(maxHealth.getValue() / 2);
++            // Purpur end - Configurable entity base attributes
++
+         }
+ 
+         if (this.isLazy()) {
+diff --git a/net/minecraft/world/entity/animal/Parrot.java b/net/minecraft/world/entity/animal/Parrot.java
+index 445614d09d2364daee5245c217baeb31e186c168..87de937fd17c2e7e8916f8503b0334e7015bdb8f 100644
+--- a/net/minecraft/world/entity/animal/Parrot.java
++++ b/net/minecraft/world/entity/animal/Parrot.java
+@@ -186,6 +186,14 @@ public class Parrot extends ShoulderRidingEntity implements VariantHolder<Parrot
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.parrotMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.parrotScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Nullable
+     @Override
+     public SpawnGroupData finalizeSpawn(
+diff --git a/net/minecraft/world/entity/animal/Pig.java b/net/minecraft/world/entity/animal/Pig.java
+index 55628e4299c2d85cabddcad38fc1e40a851d64aa..7df848bd9c4cf98fbd431a8cae16a2df86ec5e2b 100644
+--- a/net/minecraft/world/entity/animal/Pig.java
++++ b/net/minecraft/world/entity/animal/Pig.java
+@@ -73,6 +73,14 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.pigMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.pigScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/animal/PolarBear.java b/net/minecraft/world/entity/animal/PolarBear.java
+index 711ed0d753494a92a003fc683146f289505ed7f6..913439a769a36521ba59d59cba4d6878d3186254 100644
+--- a/net/minecraft/world/entity/animal/PolarBear.java
++++ b/net/minecraft/world/entity/animal/PolarBear.java
+@@ -116,6 +116,14 @@ public class PolarBear extends Animal implements NeutralMob {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.polarBearMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.polarBearScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Nullable
+     @Override
+     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
+diff --git a/net/minecraft/world/entity/animal/Pufferfish.java b/net/minecraft/world/entity/animal/Pufferfish.java
+index f7e9abf778186ad1c78dbe411980a83c5e68792e..e3c20694fc41b8a0a9d5170560be00fb55a4ad86 100644
+--- a/net/minecraft/world/entity/animal/Pufferfish.java
++++ b/net/minecraft/world/entity/animal/Pufferfish.java
+@@ -57,6 +57,13 @@ public class Pufferfish extends AbstractFish {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.pufferfishMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+         super.defineSynchedData(builder);
+diff --git a/net/minecraft/world/entity/animal/Rabbit.java b/net/minecraft/world/entity/animal/Rabbit.java
+index 8cac46951938c80fae3499e8b53709c25d86e9bd..e71161ecc9d4ee3fe29fa3a27d11d63e1a28d1a0 100644
+--- a/net/minecraft/world/entity/animal/Rabbit.java
++++ b/net/minecraft/world/entity/animal/Rabbit.java
+@@ -137,6 +137,14 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.rabbitMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.rabbitScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public void registerGoals() {
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/animal/Salmon.java b/net/minecraft/world/entity/animal/Salmon.java
+index ebbd6d39c3f5d6c66445c2c743785ed369408389..93eb3cc3605f694337c1604e2db63fed04693617 100644
+--- a/net/minecraft/world/entity/animal/Salmon.java
++++ b/net/minecraft/world/entity/animal/Salmon.java
+@@ -47,6 +47,13 @@ public class Salmon extends AbstractSchoolingFish implements VariantHolder<Salmo
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.salmonMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public int getMaxSchoolSize() {
+         return 5;
+diff --git a/net/minecraft/world/entity/animal/Sheep.java b/net/minecraft/world/entity/animal/Sheep.java
+index c27bb9e8a4a5e8fdc8ae28dae820385966b8b44c..b66440f5cfbd714c6d2f5b7f66b4e755602b4521 100644
+--- a/net/minecraft/world/entity/animal/Sheep.java
++++ b/net/minecraft/world/entity/animal/Sheep.java
+@@ -98,6 +98,14 @@ public class Sheep extends Animal implements Shearable {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.sheepMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.sheepScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.eatBlockGoal = new EatBlockGoal(this);
+diff --git a/net/minecraft/world/entity/animal/SnowGolem.java b/net/minecraft/world/entity/animal/SnowGolem.java
+index 52de92b118b613217b8f92ff672c01ddf798a1fc..d97a297db3bec0c86c6a82ef1c353015df2115f7 100644
+--- a/net/minecraft/world/entity/animal/SnowGolem.java
++++ b/net/minecraft/world/entity/animal/SnowGolem.java
+@@ -78,6 +78,14 @@ public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackM
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.snowGolemMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.snowGolemScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
+diff --git a/net/minecraft/world/entity/animal/Squid.java b/net/minecraft/world/entity/animal/Squid.java
+index e3f43e8c6ddbae289a82157cab4beb18f682dd75..0391ff403391bfe13b907a8b1aae9057474f695b 100644
+--- a/net/minecraft/world/entity/animal/Squid.java
++++ b/net/minecraft/world/entity/animal/Squid.java
+@@ -91,6 +91,14 @@ public class Squid extends AgeableWaterCreature {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.squidMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.squidScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new Squid.SquidRandomMovementGoal(this));
+diff --git a/net/minecraft/world/entity/animal/TropicalFish.java b/net/minecraft/world/entity/animal/TropicalFish.java
+index 1e31a39b276e1c5ae767da7af0b536007c87189e..6246a86f7f77dff37e36bd9dff964878134e9c70 100644
+--- a/net/minecraft/world/entity/animal/TropicalFish.java
++++ b/net/minecraft/world/entity/animal/TropicalFish.java
+@@ -79,6 +79,13 @@ public class TropicalFish extends AbstractSchoolingFish implements VariantHolder
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.tropicalFishMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static String getPredefinedName(int variantId) {
+         return "entity.minecraft.tropical_fish.predefined." + variantId;
+     }
+diff --git a/net/minecraft/world/entity/animal/Turtle.java b/net/minecraft/world/entity/animal/Turtle.java
+index 98cb91574c8d2bdb6d180256f657ecc67987a6fe..4f0fbbb2caeda6d1477d3297fd68f802e4f3a9ca 100644
+--- a/net/minecraft/world/entity/animal/Turtle.java
++++ b/net/minecraft/world/entity/animal/Turtle.java
+@@ -101,6 +101,14 @@ public class Turtle extends Animal {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.turtleMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.turtleScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public void setHomePos(BlockPos homePos) {
+         this.entityData.set(HOME_POS, homePos);
+     }
+diff --git a/net/minecraft/world/entity/animal/Wolf.java b/net/minecraft/world/entity/animal/Wolf.java
+index 90609ff3060322110ece27630de0abae1a6370a8..afc12968313a408e8a71a20c2c0defde52605c4e 100644
+--- a/net/minecraft/world/entity/animal/Wolf.java
++++ b/net/minecraft/world/entity/animal/Wolf.java
+@@ -202,6 +202,14 @@ public class Wolf extends TamableAnimal implements NeutralMob, VariantHolder<Hol
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.wolfMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.wolfScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/animal/allay/Allay.java b/net/minecraft/world/entity/animal/allay/Allay.java
+index b399a1220496d38cef252fd2d43b31b215a952f9..22e0fad86da2e7b932863ef30182355aa41424a1 100644
+--- a/net/minecraft/world/entity/animal/allay/Allay.java
++++ b/net/minecraft/world/entity/animal/allay/Allay.java
+@@ -173,6 +173,14 @@ public class Allay extends PathfinderMob implements InventoryCarrier, VibrationS
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.allayMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.allayScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected Brain.Provider<Allay> brainProvider() {
+         return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+diff --git a/net/minecraft/world/entity/animal/armadillo/Armadillo.java b/net/minecraft/world/entity/animal/armadillo/Armadillo.java
+index 87a190d8646d8bbed8c182f9f0f7d8c398e63d26..c10ebb66dec26b6ccc223e98effa0b9a68363626 100644
+--- a/net/minecraft/world/entity/animal/armadillo/Armadillo.java
++++ b/net/minecraft/world/entity/animal/armadillo/Armadillo.java
+@@ -97,6 +97,14 @@ public class Armadillo extends Animal {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.armadilloMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.armadilloScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+         super.defineSynchedData(builder);
+diff --git a/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/net/minecraft/world/entity/animal/axolotl/Axolotl.java
+index 2054e4624da0c9b04ea69b9bf39443c4574d48be..f2f09a529e9db88784ff4299fdf3966046c736ab 100644
+--- a/net/minecraft/world/entity/animal/axolotl/Axolotl.java
++++ b/net/minecraft/world/entity/animal/axolotl/Axolotl.java
+@@ -132,6 +132,14 @@ public class Axolotl extends Animal implements VariantHolder<Axolotl.Variant>, B
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.axolotlMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.axolotlScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public float getWalkTargetValue(BlockPos pos, LevelReader level) {
+         return 0.0F;
+diff --git a/net/minecraft/world/entity/animal/camel/Camel.java b/net/minecraft/world/entity/animal/camel/Camel.java
+index 11311d2ec37d825e73e2218e60e2606dd3a25a1d..1d7e2358bac193af48dc4b7f5b0295e3bffa152b 100644
+--- a/net/minecraft/world/entity/animal/camel/Camel.java
++++ b/net/minecraft/world/entity/animal/camel/Camel.java
+@@ -322,6 +322,23 @@ public class Camel extends AbstractHorse {
+         return this.dashCooldown;
+     }
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public float generateMaxHealth(net.minecraft.util.RandomSource random) {
++        return (float) generateMaxHealth(this.level().purpurConfig.camelMaxHealthMin, this.level().purpurConfig.camelMaxHealthMax);
++    }
++
++    @Override
++    public double generateJumpStrength(net.minecraft.util.RandomSource random) {
++        return generateJumpStrength(this.level().purpurConfig.camelJumpStrengthMin, this.level().purpurConfig.camelJumpStrengthMax);
++    }
++
++    @Override
++    public double generateSpeed(net.minecraft.util.RandomSource random) {
++        return generateSpeed(this.level().purpurConfig.camelMovementSpeedMin, this.level().purpurConfig.camelMovementSpeedMax);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected SoundEvent getAmbientSound() {
+         return SoundEvents.CAMEL_AMBIENT;
+diff --git a/net/minecraft/world/entity/animal/horse/AbstractHorse.java b/net/minecraft/world/entity/animal/horse/AbstractHorse.java
+index 828406060e50ff62586929371aafb46ef7d81f92..56dc7011ed07f0bd5870fbadde2b5c0c630c5edd 100644
+--- a/net/minecraft/world/entity/animal/horse/AbstractHorse.java
++++ b/net/minecraft/world/entity/animal/horse/AbstractHorse.java
+@@ -218,6 +218,46 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.generateMaxHealth(random));
++        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateSpeed(random));
++        this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateJumpStrength(random));
++    }
++
++    protected double generateMaxHealth(double min, double max) {
++        if (min == max) return min;
++        int diff = Mth.floor(max - min);
++        double base = max - diff;
++        int first = Mth.floor((double) diff / 2);
++        int rest = diff - first;
++        return base + random.nextInt(first + 1) + random.nextInt(rest + 1);
++    }
++
++    protected double generateJumpStrength(double min, double max) {
++        if (min == max) return min;
++        return min + (max - min) * this.random.nextDouble();
++    }
++
++    protected double generateSpeed(double min, double max) {
++        if (min == max) return min;
++        return min + (max - min) * this.random.nextDouble();
++    }
++
++    protected float generateMaxHealth(RandomSource random) {
++        return 15.0F + (float) random.nextInt(8) + (float) random.nextInt(9);
++    }
++
++    protected double generateJumpStrength(RandomSource random) {
++        return 0.4F + random.nextDouble() * 0.2 + random.nextDouble() * 0.2 + random.nextDouble() * 0.2;
++    }
++
++    protected double generateSpeed(RandomSource random) {
++        return (0.45F + random.nextDouble() * 0.3 + random.nextDouble() * 0.3 + random.nextDouble() * 0.3) * 0.25;
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HorseHasRider(this)); // Purpur - Ridables
+@@ -1218,7 +1258,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
+             spawnGroupData = new AgeableMob.AgeableMobGroupData(0.2F);
+         }
+ 
+-        this.randomizeAttributes(level.getRandom());
++        //this.randomizeAttributes(level.getRandom()); // Purpur - replaced by initAttributes()
+         return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
+     }
+ 
+diff --git a/net/minecraft/world/entity/animal/horse/Donkey.java b/net/minecraft/world/entity/animal/horse/Donkey.java
+index ee3fa710e95f2e84f7f9bdce1159d1136815172d..223f1d109680e3643ab2c8343be22713e89755fd 100644
+--- a/net/minecraft/world/entity/animal/horse/Donkey.java
++++ b/net/minecraft/world/entity/animal/horse/Donkey.java
+@@ -23,6 +23,23 @@ public class Donkey extends AbstractChestedHorse {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public float generateMaxHealth(net.minecraft.util.RandomSource random) {
++        return (float) generateMaxHealth(this.level().purpurConfig.donkeyMaxHealthMin, this.level().purpurConfig.donkeyMaxHealthMax);
++    }
++
++    @Override
++    public double generateJumpStrength(net.minecraft.util.RandomSource random) {
++        return generateJumpStrength(this.level().purpurConfig.donkeyJumpStrengthMin, this.level().purpurConfig.donkeyJumpStrengthMax);
++    }
++
++    @Override
++    public double generateSpeed(net.minecraft.util.RandomSource random) {
++        return generateSpeed(this.level().purpurConfig.donkeyMovementSpeedMin, this.level().purpurConfig.donkeyMovementSpeedMax);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected SoundEvent getAmbientSound() {
+         return SoundEvents.DONKEY_AMBIENT;
+diff --git a/net/minecraft/world/entity/animal/horse/Horse.java b/net/minecraft/world/entity/animal/horse/Horse.java
+index 361bf346153912bcbfcf962d7f716dfe12ae2a7b..8bd118e82da9e4d4153de0a3efaf6d69e3c4c540 100644
+--- a/net/minecraft/world/entity/animal/horse/Horse.java
++++ b/net/minecraft/world/entity/animal/horse/Horse.java
+@@ -50,6 +50,23 @@ public class Horse extends AbstractHorse implements VariantHolder<Variant> {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public float generateMaxHealth(RandomSource random) {
++        return (float) generateMaxHealth(this.level().purpurConfig.horseMaxHealthMin, this.level().purpurConfig.horseMaxHealthMax);
++    }
++
++    @Override
++    public double generateJumpStrength(RandomSource random) {
++        return generateJumpStrength(this.level().purpurConfig.horseJumpStrengthMin, this.level().purpurConfig.horseJumpStrengthMax);
++    }
++
++    @Override
++    public double generateSpeed(RandomSource random) {
++        return generateSpeed(this.level().purpurConfig.horseMovementSpeedMin, this.level().purpurConfig.horseMovementSpeedMax);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void randomizeAttributes(RandomSource random) {
+         this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(generateMaxHealth(random::nextInt));
+diff --git a/net/minecraft/world/entity/animal/horse/Llama.java b/net/minecraft/world/entity/animal/horse/Llama.java
+index 164a429d432badcb315e8ece406e29e576a11265..58e726dd33f572a31b4910b9ff666c4252fb03a9 100644
+--- a/net/minecraft/world/entity/animal/horse/Llama.java
++++ b/net/minecraft/world/entity/animal/horse/Llama.java
+@@ -124,6 +124,23 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public float generateMaxHealth(RandomSource random) {
++        return (float) generateMaxHealth(this.level().purpurConfig.llamaMaxHealthMin, this.level().purpurConfig.llamaMaxHealthMax);
++    }
++
++    @Override
++    public double generateJumpStrength(RandomSource random) {
++        return generateJumpStrength(this.level().purpurConfig.llamaJumpStrengthMin, this.level().purpurConfig.llamaJumpStrengthMax);
++    }
++
++    @Override
++    public double generateSpeed(RandomSource random) {
++        return generateSpeed(this.level().purpurConfig.llamaMovementSpeedMin, this.level().purpurConfig.llamaMovementSpeedMax);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public boolean isTraderLlama() {
+         return false;
+     }
+diff --git a/net/minecraft/world/entity/animal/horse/Mule.java b/net/minecraft/world/entity/animal/horse/Mule.java
+index f6d99d894cc9a370291abe76ce33a2628332c843..d0d6b511dbd4f992d11f06e7539b0c1034250660 100644
+--- a/net/minecraft/world/entity/animal/horse/Mule.java
++++ b/net/minecraft/world/entity/animal/horse/Mule.java
+@@ -22,6 +22,23 @@ public class Mule extends AbstractChestedHorse {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public float generateMaxHealth(net.minecraft.util.RandomSource random) {
++        return (float) generateMaxHealth(this.level().purpurConfig.muleMaxHealthMin, this.level().purpurConfig.muleMaxHealthMax);
++    }
++
++    @Override
++    public double generateJumpStrength(net.minecraft.util.RandomSource random) {
++        return generateJumpStrength(this.level().purpurConfig.muleJumpStrengthMin, this.level().purpurConfig.muleJumpStrengthMax);
++    }
++
++    @Override
++    public double generateSpeed(net.minecraft.util.RandomSource random) {
++        return generateSpeed(this.level().purpurConfig.muleMovementSpeedMin, this.level().purpurConfig.muleMovementSpeedMax);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected SoundEvent getAmbientSound() {
+         return SoundEvents.MULE_AMBIENT;
+diff --git a/net/minecraft/world/entity/animal/horse/SkeletonHorse.java b/net/minecraft/world/entity/animal/horse/SkeletonHorse.java
+index fdf76fdaab0275471b989e5c1fc02e79beda2410..6cc64c7e2f50a311460cd5d7ffa9545e5d7e0b02 100644
+--- a/net/minecraft/world/entity/animal/horse/SkeletonHorse.java
++++ b/net/minecraft/world/entity/animal/horse/SkeletonHorse.java
+@@ -46,6 +46,23 @@ public class SkeletonHorse extends AbstractHorse {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public float generateMaxHealth(RandomSource random) {
++        return (float) generateMaxHealth(this.level().purpurConfig.skeletonHorseMaxHealthMin, this.level().purpurConfig.skeletonHorseMaxHealthMax);
++    }
++
++    @Override
++    public double generateJumpStrength(RandomSource random) {
++        return generateJumpStrength(this.level().purpurConfig.skeletonHorseJumpStrengthMin, this.level().purpurConfig.skeletonHorseJumpStrengthMax);
++    }
++
++    @Override
++    public double generateSpeed(RandomSource random) {
++        return generateSpeed(this.level().purpurConfig.skeletonHorseMovementSpeedMin, this.level().purpurConfig.skeletonHorseMovementSpeedMax);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static AttributeSupplier.Builder createAttributes() {
+         return createBaseHorseAttributes().add(Attributes.MAX_HEALTH, 15.0).add(Attributes.MOVEMENT_SPEED, 0.2F);
+     }
+diff --git a/net/minecraft/world/entity/animal/horse/TraderLlama.java b/net/minecraft/world/entity/animal/horse/TraderLlama.java
+index bd6d2fd5a6aa072a837984570d5f39fda7dd7adc..715cb8046e1fb9ac929d81709777bf4ae9323d46 100644
+--- a/net/minecraft/world/entity/animal/horse/TraderLlama.java
++++ b/net/minecraft/world/entity/animal/horse/TraderLlama.java
+@@ -51,6 +51,23 @@ public class TraderLlama extends Llama {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public float generateMaxHealth(net.minecraft.util.RandomSource random) {
++        return (float) generateMaxHealth(this.level().purpurConfig.traderLlamaMaxHealthMin, this.level().purpurConfig.traderLlamaMaxHealthMax);
++    }
++
++    @Override
++    public double generateJumpStrength(net.minecraft.util.RandomSource random) {
++        return generateJumpStrength(this.level().purpurConfig.traderLlamaJumpStrengthMin, this.level().purpurConfig.traderLlamaJumpStrengthMax);
++    }
++
++    @Override
++    public double generateSpeed(net.minecraft.util.RandomSource random) {
++        return generateSpeed(this.level().purpurConfig.traderLlamaMovementSpeedMin, this.level().purpurConfig.traderLlamaMovementSpeedMax);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public boolean isTraderLlama() {
+         return true;
+diff --git a/net/minecraft/world/entity/animal/horse/ZombieHorse.java b/net/minecraft/world/entity/animal/horse/ZombieHorse.java
+index 3fe3a94a393b1c60a96fcfed0074f62ca7a1d4de..8da61e14f2470dfb191d9dfaf19c713584b8e9b8 100644
+--- a/net/minecraft/world/entity/animal/horse/ZombieHorse.java
++++ b/net/minecraft/world/entity/animal/horse/ZombieHorse.java
+@@ -45,6 +45,23 @@ public class ZombieHorse extends AbstractHorse {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public float generateMaxHealth(RandomSource random) {
++        return (float) generateMaxHealth(this.level().purpurConfig.zombieHorseMaxHealthMin, this.level().purpurConfig.zombieHorseMaxHealthMax);
++    }
++
++    @Override
++    public double generateJumpStrength(RandomSource random) {
++        return generateJumpStrength(this.level().purpurConfig.zombieHorseJumpStrengthMin, this.level().purpurConfig.zombieHorseJumpStrengthMax);
++    }
++
++    @Override
++    public double generateSpeed(RandomSource random) {
++        return generateSpeed(this.level().purpurConfig.zombieHorseMovementSpeedMin, this.level().purpurConfig.zombieHorseMovementSpeedMax);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static AttributeSupplier.Builder createAttributes() {
+         return createBaseHorseAttributes().add(Attributes.MAX_HEALTH, 15.0).add(Attributes.MOVEMENT_SPEED, 0.2F);
+     }
+diff --git a/net/minecraft/world/entity/animal/sniffer/Sniffer.java b/net/minecraft/world/entity/animal/sniffer/Sniffer.java
+index 151c2435810798708544f9cf20bcf77f5e384962..a5ff61a3697e2299c96288b6f8d7c6f2511d86d5 100644
+--- a/net/minecraft/world/entity/animal/sniffer/Sniffer.java
++++ b/net/minecraft/world/entity/animal/sniffer/Sniffer.java
+@@ -105,6 +105,14 @@ public class Sniffer extends Animal {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.snifferMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.snifferScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+         super.defineSynchedData(builder);
+diff --git a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
+index bc9564ee22ff9d7f6d819da9601c2d8162d304e1..ca900bb646e16c7b4342f23c3ffae786eab28145 100644
+--- a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
++++ b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
+@@ -163,6 +163,13 @@ public class EnderDragon extends Mob implements Enemy {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.enderDragonMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static AttributeSupplier.Builder createAttributes() {
+         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 200.0);
+     }
+@@ -1076,7 +1083,7 @@ public class EnderDragon extends Mob implements Enemy {
+ 
+     @Override
+     protected float sanitizeScale(float scale) {
+-        return 1.0F;
++        return 1.0F; // Purpur - Configurable entity base attributes
+     }
+ 
+     // CraftBukkit start - SPIGOT-2420: Special case, the ender dragon drops 12000 xp for the first kill and 500 xp for every other kill and this over time.
+diff --git a/net/minecraft/world/entity/boss/wither/WitherBoss.java b/net/minecraft/world/entity/boss/wither/WitherBoss.java
+index 5d97ae09292fb3209e7362df778e88dc508815a3..60e666aa8afe14b519010b6d137a89e3d22f6c81 100644
+--- a/net/minecraft/world/entity/boss/wither/WitherBoss.java
++++ b/net/minecraft/world/entity/boss/wither/WitherBoss.java
+@@ -211,6 +211,14 @@ public class WitherBoss extends Monster implements RangedAttackMob {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.witherMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.witherScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected PathNavigation createNavigation(Level level) {
+         FlyingPathNavigation flyingPathNavigation = new FlyingPathNavigation(this, level);
+@@ -433,7 +441,7 @@ public class WitherBoss extends Monster implements RangedAttackMob {
+ 
+             this.setInvulnerableTicks(i);
+             if (this.tickCount % 10 == 0) {
+-                this.heal(10.0F, org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason.WITHER_SPAWN); // CraftBukkit
++                this.heal(this.getMaxHealth() / 30, org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason.WITHER_SPAWN); // CraftBukkit // Purpur - Configurable entity base attributes
+             }
+         } else {
+             super.customServerAiStep(level);
+diff --git a/net/minecraft/world/entity/monster/Blaze.java b/net/minecraft/world/entity/monster/Blaze.java
+index 201b08a75c42d90e657c3d56fc6691839e87199c..ece9e3e18c60d5ca9b4a8bd8899556c90cc8d039 100644
+--- a/net/minecraft/world/entity/monster/Blaze.java
++++ b/net/minecraft/world/entity/monster/Blaze.java
+@@ -75,6 +75,14 @@ public class Blaze extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.blazeMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.blazeScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
+diff --git a/net/minecraft/world/entity/monster/Bogged.java b/net/minecraft/world/entity/monster/Bogged.java
+index 2b603c1242aac307f28bae5a85bcaad309f929f5..2774602455b92745e789d83f17480c141eb89abf 100644
+--- a/net/minecraft/world/entity/monster/Bogged.java
++++ b/net/minecraft/world/entity/monster/Bogged.java
+@@ -58,6 +58,14 @@ public class Bogged extends AbstractSkeleton implements Shearable {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.boggedMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.boggedScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+         super.defineSynchedData(builder);
+diff --git a/net/minecraft/world/entity/monster/CaveSpider.java b/net/minecraft/world/entity/monster/CaveSpider.java
+index 4873a3d8dd9c160ecdbda594ee546c35ec03a1e7..64eecd8d1acd318743800c1daa77cd97097a0f7c 100644
+--- a/net/minecraft/world/entity/monster/CaveSpider.java
++++ b/net/minecraft/world/entity/monster/CaveSpider.java
+@@ -43,6 +43,14 @@ public class CaveSpider extends Spider {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.caveSpiderMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.caveSpiderScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public boolean doHurtTarget(ServerLevel level, Entity source) {
+         if (super.doHurtTarget(level, source)) {
+diff --git a/net/minecraft/world/entity/monster/Creeper.java b/net/minecraft/world/entity/monster/Creeper.java
+index cdcee233ed0c272e4a68a2a709fe92b21bc6c22c..31ede62a19321970d26f302399a60947b8d88b37 100644
+--- a/net/minecraft/world/entity/monster/Creeper.java
++++ b/net/minecraft/world/entity/monster/Creeper.java
+@@ -131,6 +131,14 @@ public class Creeper extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.creeperMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.creeperScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/monster/Drowned.java b/net/minecraft/world/entity/monster/Drowned.java
+index c1da9ebee7e870a9143e6224be9e9f4e62232459..9c328f67260606d9252547848d5916cab4290e74 100644
+--- a/net/minecraft/world/entity/monster/Drowned.java
++++ b/net/minecraft/world/entity/monster/Drowned.java
+@@ -92,6 +92,19 @@ public class Drowned extends Zombie implements RangedAttackMob {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.drownedMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.drownedScale);
++    }
++
++    @Override
++    protected void randomizeReinforcementsChance() {
++        this.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(this.random.nextDouble() * this.level().purpurConfig.drownedSpawnReinforcements);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void addBehaviourGoals() {
+         this.goalSelector.addGoal(1, new Drowned.DrownedGoToWaterGoal(this, 1.0));
+diff --git a/net/minecraft/world/entity/monster/ElderGuardian.java b/net/minecraft/world/entity/monster/ElderGuardian.java
+index c6eeaf7b460408acfdf89d988b47b08eab7df4c5..148ae4bca77874545a2a05fb7f29f9ac284feff6 100644
+--- a/net/minecraft/world/entity/monster/ElderGuardian.java
++++ b/net/minecraft/world/entity/monster/ElderGuardian.java
+@@ -43,6 +43,14 @@ public class ElderGuardian extends Guardian {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.elderGuardianMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.elderGuardianScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static AttributeSupplier.Builder createAttributes() {
+         return Guardian.createAttributes().add(Attributes.MOVEMENT_SPEED, 0.3F).add(Attributes.ATTACK_DAMAGE, 8.0).add(Attributes.MAX_HEALTH, 80.0);
+     }
+diff --git a/net/minecraft/world/entity/monster/EnderMan.java b/net/minecraft/world/entity/monster/EnderMan.java
+index cf511c78638e0d7aa652d1c880b3cd8172d5b3cf..f8d6935439b4e672ed655b2a458451d4b1fa8ffd 100644
+--- a/net/minecraft/world/entity/monster/EnderMan.java
++++ b/net/minecraft/world/entity/monster/EnderMan.java
+@@ -107,6 +107,14 @@ public class EnderMan extends Monster implements NeutralMob {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.endermanMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.endermanScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/monster/Endermite.java b/net/minecraft/world/entity/monster/Endermite.java
+index f4ab2e984dd87d2372aa10d2cbfd03a3f6fb1249..2ea45eba13d0b0ea2d3c1d1a3666d6e2e027a3ef 100644
+--- a/net/minecraft/world/entity/monster/Endermite.java
++++ b/net/minecraft/world/entity/monster/Endermite.java
+@@ -62,6 +62,14 @@ public class Endermite extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.endermiteMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.endermiteScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/monster/Evoker.java b/net/minecraft/world/entity/monster/Evoker.java
+index 2eaeb0c0c0cb917506443ed1380b81f317961d53..d3d7e11a12af404d83e81888a9a633dfb93412ec 100644
+--- a/net/minecraft/world/entity/monster/Evoker.java
++++ b/net/minecraft/world/entity/monster/Evoker.java
+@@ -67,6 +67,14 @@ public class Evoker extends SpellcasterIllager {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.evokerMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.evokerScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         super.registerGoals();
+diff --git a/net/minecraft/world/entity/monster/Ghast.java b/net/minecraft/world/entity/monster/Ghast.java
+index 00c05fb5736c90c94f6fe51793acf8b65b1d0505..c5987f50b343ded580b3d3f264498d3893433f92 100644
+--- a/net/minecraft/world/entity/monster/Ghast.java
++++ b/net/minecraft/world/entity/monster/Ghast.java
+@@ -76,6 +76,14 @@ public class Ghast extends FlyingMob implements Enemy {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.ghastMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.ghastScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
+diff --git a/net/minecraft/world/entity/monster/Giant.java b/net/minecraft/world/entity/monster/Giant.java
+index 135f83484ac31db7dcc225ba6f94e2e4ca27eea8..13021800af7cc9263ef4f393f9cfbda5061a32ae 100644
+--- a/net/minecraft/world/entity/monster/Giant.java
++++ b/net/minecraft/world/entity/monster/Giant.java
+@@ -35,6 +35,16 @@ public class Giant extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    protected void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.giantMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.giantScale);
++        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.level().purpurConfig.giantMovementSpeed);
++        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.level().purpurConfig.giantAttackDamage);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static AttributeSupplier.Builder createAttributes() {
+         return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 100.0).add(Attributes.MOVEMENT_SPEED, 0.5).add(Attributes.ATTACK_DAMAGE, 50.0);
+     }
+diff --git a/net/minecraft/world/entity/monster/Guardian.java b/net/minecraft/world/entity/monster/Guardian.java
+index c20c744522459d938c772077e542ba433bc4c80e..546a4fe6d038d04c0be500e76ff4aebb02c3681a 100644
+--- a/net/minecraft/world/entity/monster/Guardian.java
++++ b/net/minecraft/world/entity/monster/Guardian.java
+@@ -90,6 +90,14 @@ public class Guardian extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.guardianMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.guardianScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         MoveTowardsRestrictionGoal moveTowardsRestrictionGoal = new MoveTowardsRestrictionGoal(this, 1.0);
+diff --git a/net/minecraft/world/entity/monster/Husk.java b/net/minecraft/world/entity/monster/Husk.java
+index 23936305045299352561e866b6a28aa515cd614a..c2365ae1cf6f98e262f302a117c4647c383dfbb5 100644
+--- a/net/minecraft/world/entity/monster/Husk.java
++++ b/net/minecraft/world/entity/monster/Husk.java
+@@ -38,6 +38,18 @@ public class Husk extends Zombie {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.huskMaxHealth);
++    }
++
++    @Override
++    protected void randomizeReinforcementsChance() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(this.random.nextDouble() * this.level().purpurConfig.huskSpawnReinforcements);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static boolean checkHuskSpawnRules(
+         EntityType<Husk> entityType, ServerLevelAccessor level, EntitySpawnReason spawnReason, BlockPos pos, RandomSource random
+     ) {
+diff --git a/net/minecraft/world/entity/monster/Illusioner.java b/net/minecraft/world/entity/monster/Illusioner.java
+index bd0f4d77260f5b123856fc7e72d5f8e74bb45321..1d1cf8748e3fba2e2963ad2fa153fbfe990f5087 100644
+--- a/net/minecraft/world/entity/monster/Illusioner.java
++++ b/net/minecraft/world/entity/monster/Illusioner.java
+@@ -74,6 +74,16 @@ public class Illusioner extends SpellcasterIllager implements RangedAttackMob {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    protected void initAttributes() {
++        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.level().purpurConfig.illusionerMovementSpeed);
++        this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(this.level().purpurConfig.illusionerFollowRange);
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.illusionerMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.illusionerScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         super.registerGoals();
+diff --git a/net/minecraft/world/entity/monster/MagmaCube.java b/net/minecraft/world/entity/monster/MagmaCube.java
+index f10b204c18b88e9110cebf050b60c23367ea3aa0..2c6b0fd46d9ed6a8d1ca7e90ebf596dd3f310f0e 100644
+--- a/net/minecraft/world/entity/monster/MagmaCube.java
++++ b/net/minecraft/world/entity/monster/MagmaCube.java
+@@ -46,6 +46,28 @@ public class MagmaCube extends Slime {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    protected String getMaxHealthEquation() {
++        return level().purpurConfig.magmaCubeMaxHealth;
++    }
++
++    @Override
++    protected String getAttackDamageEquation() {
++        return level().purpurConfig.magmaCubeAttackDamage;
++    }
++
++    @Override
++    protected java.util.Map<Integer, Double> getMaxHealthCache() {
++        return level().purpurConfig.magmaCubeMaxHealthCache;
++    }
++
++    @Override
++    protected java.util.Map<Integer, Double> getAttackDamageCache() {
++        return level().purpurConfig.magmaCubeAttackDamageCache;
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static AttributeSupplier.Builder createAttributes() {
+         return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.2F);
+     }
+diff --git a/net/minecraft/world/entity/monster/Phantom.java b/net/minecraft/world/entity/monster/Phantom.java
+index 75c6a43a3ab4851a47990402bee49f7e8305cd60..08fc2dc0fecfa370c99e877d502149a8ea147e5f 100644
+--- a/net/minecraft/world/entity/monster/Phantom.java
++++ b/net/minecraft/world/entity/monster/Phantom.java
+@@ -151,7 +151,10 @@ public class Phantom extends FlyingMob implements Enemy {
+     private void updatePhantomSizeInfo() {
+         this.refreshDimensions();
+         if (level().purpurConfig.phantomFlamesOnSwoop && attackPhase == AttackPhase.SWOOP) shoot(); // Purpur - Ridables - Phantom flames on swoop
+-        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(6 + this.getPhantomSize());
++        // Purpur start - Configurable entity base attributes
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(getFromCache(() -> this.level().purpurConfig.phantomMaxHealth, () -> this.level().purpurConfig.phantomMaxHealthCache, () -> 20.0D));
++        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(getFromCache(() -> this.level().purpurConfig.phantomAttackDamage, () -> this.level().purpurConfig.phantomAttackDamageCache, () -> (double) (6 + this.getPhantomSize())));
++        // Purpur end - Configurable entity base attributes
+     }
+ 
+     public int getPhantomSize() {
+@@ -176,6 +179,23 @@ public class Phantom extends FlyingMob implements Enemy {
+         return true;
+     }
+ 
++    // Purpur start - Configurable entity base attributes
++    private double getFromCache(java.util.function.Supplier<String> equation, java.util.function.Supplier<java.util.Map<Integer, Double>> cache, java.util.function.Supplier<Double> defaultValue) {
++        int size = getPhantomSize();
++        Double value = cache.get().get(size);
++        if (value == null) {
++            try {
++                value = ((Number) scriptEngine.eval("let size = " + size + "; " + equation.get())).doubleValue();
++            } catch (javax.script.ScriptException e) {
++                e.printStackTrace();
++                value = defaultValue.get();
++            }
++            cache.get().put(size, value);
++        }
++        return value;
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public void tick() {
+         super.tick();
+diff --git a/net/minecraft/world/entity/monster/Pillager.java b/net/minecraft/world/entity/monster/Pillager.java
+index 4e799981f04cd17a34f043dda82869adcf16ea98..9586aa3f3eb61fb0c1224df9d0104da69d7fa6bb 100644
+--- a/net/minecraft/world/entity/monster/Pillager.java
++++ b/net/minecraft/world/entity/monster/Pillager.java
+@@ -80,6 +80,14 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob, Inve
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.pillagerMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.pillagerScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         super.registerGoals();
+diff --git a/net/minecraft/world/entity/monster/Ravager.java b/net/minecraft/world/entity/monster/Ravager.java
+index fb4e91c4f37619ce273ada0909932b32ba3b53f5..36ebfc1102a18e4050eb9a2441d75bafcf3784b8 100644
+--- a/net/minecraft/world/entity/monster/Ravager.java
++++ b/net/minecraft/world/entity/monster/Ravager.java
+@@ -89,6 +89,14 @@ public class Ravager extends Raider {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.ravagerMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.ravagerScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         super.registerGoals();
+diff --git a/net/minecraft/world/entity/monster/Shulker.java b/net/minecraft/world/entity/monster/Shulker.java
+index e0a496a0c584e1f90967a8528a73536fd991e774..03db684c122a07176aa1365550da935cdb66a1b9 100644
+--- a/net/minecraft/world/entity/monster/Shulker.java
++++ b/net/minecraft/world/entity/monster/Shulker.java
+@@ -121,6 +121,14 @@ public class Shulker extends AbstractGolem implements VariantHolder<Optional<Dye
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.shulkerMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.shulkerScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
+@@ -608,7 +616,7 @@ public class Shulker extends AbstractGolem implements VariantHolder<Optional<Dye
+ 
+     @Override
+     protected float sanitizeScale(float scale) {
+-        return Math.min(scale, 3.0F);
++        return Math.min(scale, MAX_SCALE); // Purpur - Configurable entity base attributes
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/Silverfish.java b/net/minecraft/world/entity/monster/Silverfish.java
+index 2e96d3de312c49fafc173e6d0c69ada1b11ae4ef..d3befe91bc65bbc2bc0d8651b78e8c9576cd0f75 100644
+--- a/net/minecraft/world/entity/monster/Silverfish.java
++++ b/net/minecraft/world/entity/monster/Silverfish.java
+@@ -56,6 +56,16 @@ public class Silverfish extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.silverfishMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.silverfishScale);
++        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.level().purpurConfig.silverfishMovementSpeed);
++        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.level().purpurConfig.silverfishAttackDamage);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.friendsGoal = new Silverfish.SilverfishWakeUpFriendsGoal(this);
+diff --git a/net/minecraft/world/entity/monster/Skeleton.java b/net/minecraft/world/entity/monster/Skeleton.java
+index d4426daf3b8079a7e769013d43f44c72b0fce697..ccd8a9867acd76e5a00d43e55e1fe64d8259de10 100644
+--- a/net/minecraft/world/entity/monster/Skeleton.java
++++ b/net/minecraft/world/entity/monster/Skeleton.java
+@@ -42,6 +42,13 @@ public class Skeleton extends AbstractSkeleton {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.skeletonMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+         super.defineSynchedData(builder);
+diff --git a/net/minecraft/world/entity/monster/Slime.java b/net/minecraft/world/entity/monster/Slime.java
+index 7d31d68ac0fce102af480a47db73409926611428..a6613f006521cbe93fee2eff3c348913b5939969 100644
+--- a/net/minecraft/world/entity/monster/Slime.java
++++ b/net/minecraft/world/entity/monster/Slime.java
+@@ -99,6 +99,39 @@ public class Slime extends Mob implements Enemy {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    protected String getMaxHealthEquation() {
++        return level().purpurConfig.slimeMaxHealth;
++    }
++
++    protected String getAttackDamageEquation() {
++        return level().purpurConfig.slimeAttackDamage;
++    }
++
++    protected java.util.Map<Integer, Double> getMaxHealthCache() {
++        return level().purpurConfig.slimeMaxHealthCache;
++    }
++
++    protected java.util.Map<Integer, Double> getAttackDamageCache() {
++        return level().purpurConfig.slimeAttackDamageCache;
++    }
++
++    protected double getFromCache(java.util.function.Supplier<String> equation, java.util.function.Supplier<java.util.Map<Integer, Double>> cache, java.util.function.Supplier<Double> defaultValue) {
++        int size = getSize();
++        Double value = cache.get().get(size);
++        if (value == null) {
++            try {
++                value = ((Number) scriptEngine.eval("let size = " + size + "; " + equation.get())).doubleValue();
++            } catch (javax.script.ScriptException e) {
++                e.printStackTrace();
++                value = defaultValue.get();
++            }
++            cache.get().put(size, value);
++        }
++        return value;
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
+@@ -129,9 +162,9 @@ public class Slime extends Mob implements Enemy {
+         this.entityData.set(ID_SIZE, i);
+         this.reapplyPosition();
+         this.refreshDimensions();
+-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(i * i);
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(getFromCache(this::getMaxHealthEquation, this::getMaxHealthCache, () -> (double) (size * size))); // Purpur - Configurable entity base attributes
+         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.2F + 0.1F * i);
+-        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(i);
++        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(getFromCache(this::getAttackDamageEquation, this::getAttackDamageCache, () -> (double) i)); // Purpur - Configurable entity base attributes
+         if (resetHealth) {
+             this.setHealth(this.getMaxHealth());
+         }
+diff --git a/net/minecraft/world/entity/monster/Spider.java b/net/minecraft/world/entity/monster/Spider.java
+index ea83335dd0d128b32d2fe513eab82e642b533b4c..38d75a0a024fa1e7b12bfc5e3ab0ec8bb98cb17a 100644
+--- a/net/minecraft/world/entity/monster/Spider.java
++++ b/net/minecraft/world/entity/monster/Spider.java
+@@ -67,6 +67,14 @@ public class Spider extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.spiderMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.spiderScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/monster/Stray.java b/net/minecraft/world/entity/monster/Stray.java
+index ed7ba19870a09ac78c1f069040a25e47c4b19d3a..0323456fca18450c22bf3999df97ff148a89e4c5 100644
+--- a/net/minecraft/world/entity/monster/Stray.java
++++ b/net/minecraft/world/entity/monster/Stray.java
+@@ -39,6 +39,13 @@ public class Stray extends AbstractSkeleton {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.strayMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static boolean checkStraySpawnRules(
+         EntityType<Stray> entityType, ServerLevelAccessor level, EntitySpawnReason spawnReason, BlockPos pos, RandomSource random
+     ) {
+diff --git a/net/minecraft/world/entity/monster/Strider.java b/net/minecraft/world/entity/monster/Strider.java
+index 78671f02ef28f4a3b796b357d21fb4c9b64c153e..be0dc92bf5ae3da1368a649e9c4e7ff5dbb1c67c 100644
+--- a/net/minecraft/world/entity/monster/Strider.java
++++ b/net/minecraft/world/entity/monster/Strider.java
+@@ -111,6 +111,14 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.striderMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.striderScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static boolean checkStriderSpawnRules(
+         EntityType<Strider> entityType, LevelAccessor level, EntitySpawnReason spawnReason, BlockPos pos, RandomSource random
+     ) {
+diff --git a/net/minecraft/world/entity/monster/Vex.java b/net/minecraft/world/entity/monster/Vex.java
+index 26528bc9a9cffb68f82917a3e70900cfb65304d7..8356906b2c0707e21021bb05f9ca01a95682880a 100644
+--- a/net/minecraft/world/entity/monster/Vex.java
++++ b/net/minecraft/world/entity/monster/Vex.java
+@@ -102,6 +102,14 @@ public class Vex extends Monster implements TraceableEntity {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.vexMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.vexScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public boolean isFlapping() {
+         return this.tickCount % TICKS_PER_FLAP == 0;
+diff --git a/net/minecraft/world/entity/monster/Vindicator.java b/net/minecraft/world/entity/monster/Vindicator.java
+index c1a1bb0be8bc77a1c0f771924f3bb8b4936d367b..0fc1b458101ba9d98d25c9637337caf0949bb893 100644
+--- a/net/minecraft/world/entity/monster/Vindicator.java
++++ b/net/minecraft/world/entity/monster/Vindicator.java
+@@ -72,6 +72,14 @@ public class Vindicator extends AbstractIllager {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.vindicatorMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.vindicatorScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         super.registerGoals();
+diff --git a/net/minecraft/world/entity/monster/Witch.java b/net/minecraft/world/entity/monster/Witch.java
+index 0b3c78e646d68ef57a7cf5d7eb77a07c497bd216..ff8380246f6c6c805b222a91ac6a1eb0d130558d 100644
+--- a/net/minecraft/world/entity/monster/Witch.java
++++ b/net/minecraft/world/entity/monster/Witch.java
+@@ -73,6 +73,14 @@ public class Witch extends Raider implements RangedAttackMob {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.witchMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.witchScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         super.registerGoals();
+diff --git a/net/minecraft/world/entity/monster/WitherSkeleton.java b/net/minecraft/world/entity/monster/WitherSkeleton.java
+index b0f155564b11ff5fd2430694b937b7826df104ea..3342f2d92830049837636ff10b5e52f0d85fbd2c 100644
+--- a/net/minecraft/world/entity/monster/WitherSkeleton.java
++++ b/net/minecraft/world/entity/monster/WitherSkeleton.java
+@@ -51,6 +51,14 @@ public class WitherSkeleton extends AbstractSkeleton {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.witherSkeletonMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.witherSkeletonScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractPiglin.class, true));
+diff --git a/net/minecraft/world/entity/monster/Zoglin.java b/net/minecraft/world/entity/monster/Zoglin.java
+index b279e33bb14dfea4813bba770daf950f5343419d..132b38d717ac3c5acc64a5ec519f345ac57021d8 100644
+--- a/net/minecraft/world/entity/monster/Zoglin.java
++++ b/net/minecraft/world/entity/monster/Zoglin.java
+@@ -102,6 +102,14 @@ public class Zoglin extends Monster implements HoglinBase {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.zoglinMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.zoglinScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected Brain.Provider<Zoglin> brainProvider() {
+         return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+diff --git a/net/minecraft/world/entity/monster/Zombie.java b/net/minecraft/world/entity/monster/Zombie.java
+index 6c6806fd7204e3610142f0365d158aee33ef8b2c..8886aa0da372223ecd4d1a17c60971e167ced886 100644
+--- a/net/minecraft/world/entity/monster/Zombie.java
++++ b/net/minecraft/world/entity/monster/Zombie.java
+@@ -117,6 +117,14 @@ public class Zombie extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.zombieMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.zombieScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
+@@ -631,7 +639,7 @@ public class Zombie extends Monster {
+     }
+ 
+     protected void randomizeReinforcementsChance() {
+-        this.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(this.random.nextDouble() * 0.1F);
++        this.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(this.random.nextDouble() * this.level().purpurConfig.zombieSpawnReinforcements); // Purpur - Configurable entity base attributes
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/ZombieVillager.java b/net/minecraft/world/entity/monster/ZombieVillager.java
+index 33bb29bc03bce90750b3b9376a6ed848208a569d..578cfc33a493b5ebc2ed42733577129a8953a461 100644
+--- a/net/minecraft/world/entity/monster/ZombieVillager.java
++++ b/net/minecraft/world/entity/monster/ZombieVillager.java
+@@ -95,6 +95,18 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.zombieVillagerMaxHealth);
++    }
++
++    @Override
++    protected void randomizeReinforcementsChance() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(this.random.nextDouble() * this.level().purpurConfig.zombieVillagerSpawnReinforcements);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+         super.defineSynchedData(builder);
+diff --git a/net/minecraft/world/entity/monster/ZombifiedPiglin.java b/net/minecraft/world/entity/monster/ZombifiedPiglin.java
+index 369f1224ea787ae034d86d0e92696882304cb271..1424954f5b4cf0fbe821425cd741b4b5c1bfed50 100644
+--- a/net/minecraft/world/entity/monster/ZombifiedPiglin.java
++++ b/net/minecraft/world/entity/monster/ZombifiedPiglin.java
+@@ -80,6 +80,14 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.zombifiedPiglinMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.zombifiedPiglinScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public void setPersistentAngerTarget(@Nullable UUID target) {
+         this.persistentAngerTarget = target;
+@@ -262,7 +270,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
+ 
+     @Override
+     protected void randomizeReinforcementsChance() {
+-        this.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(0.0);
++        this.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(this.random.nextDouble() * this.level().purpurConfig.zombifiedPiglinSpawnReinforcements); // Purpur - Configurable entity base attributes
+     }
+ 
+     @Nullable
+diff --git a/net/minecraft/world/entity/monster/creaking/Creaking.java b/net/minecraft/world/entity/monster/creaking/Creaking.java
+index 57ac66c2de97c9b5940c1f0af663a1a26d2c8b73..887a81ea82b86edceaa46eb2032f53fccb84e158 100644
+--- a/net/minecraft/world/entity/monster/creaking/Creaking.java
++++ b/net/minecraft/world/entity/monster/creaking/Creaking.java
+@@ -125,6 +125,14 @@ public class Creaking extends Monster {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.creakingMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.creakingScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected BodyRotationControl createBodyControl() {
+         return new Creaking.CreakingBodyRotationControl(this);
+diff --git a/net/minecraft/world/entity/monster/hoglin/Hoglin.java b/net/minecraft/world/entity/monster/hoglin/Hoglin.java
+index 028e09e1d8a14d989b2c19ca62e6544a93e1f1c4..54924cd7c84cbcd22ffc0bd37fc24f24e73c18bc 100644
+--- a/net/minecraft/world/entity/monster/hoglin/Hoglin.java
++++ b/net/minecraft/world/entity/monster/hoglin/Hoglin.java
+@@ -109,6 +109,14 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.hoglinMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.hoglinScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @VisibleForTesting
+     public void setTimeInOverworld(int timeInOverworld) {
+         this.timeInOverworld = timeInOverworld;
+diff --git a/net/minecraft/world/entity/monster/piglin/Piglin.java b/net/minecraft/world/entity/monster/piglin/Piglin.java
+index 02d748ecb10c3e20aafc0c449b99ca5b6cd80e04..897c57263ab7347987b289016a71d11f693bc8b2 100644
+--- a/net/minecraft/world/entity/monster/piglin/Piglin.java
++++ b/net/minecraft/world/entity/monster/piglin/Piglin.java
+@@ -168,6 +168,14 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.piglinMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.piglinScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public void addAdditionalSaveData(CompoundTag compound) {
+         super.addAdditionalSaveData(compound);
+diff --git a/net/minecraft/world/entity/monster/piglin/PiglinBrute.java b/net/minecraft/world/entity/monster/piglin/PiglinBrute.java
+index 97241682311797faa93927e0477a7646ce53b2c8..eb82252cd87797927e153974b9280b5eaa251080 100644
+--- a/net/minecraft/world/entity/monster/piglin/PiglinBrute.java
++++ b/net/minecraft/world/entity/monster/piglin/PiglinBrute.java
+@@ -82,6 +82,14 @@ public class PiglinBrute extends AbstractPiglin {
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.piglinBruteMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.piglinBruteScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     public static AttributeSupplier.Builder createAttributes() {
+         return Monster.createMonsterAttributes()
+             .add(Attributes.MAX_HEALTH, 50.0)
+diff --git a/net/minecraft/world/entity/npc/Villager.java b/net/minecraft/world/entity/npc/Villager.java
+index a7424ad414b72d2adaf0863bf1055f3eff5e2989..c4ce3a2f03bb7665beb131892288d8e4f722a4b5 100644
+--- a/net/minecraft/world/entity/npc/Villager.java
++++ b/net/minecraft/world/entity/npc/Villager.java
+@@ -268,6 +268,14 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.villagerMaxHealth);
++        this.getAttribute(Attributes.SCALE).setBaseValue(this.level().purpurConfig.villagerScale);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     public Brain<Villager> getBrain() {
+         return (Brain<Villager>)super.getBrain();
+diff --git a/net/minecraft/world/entity/npc/WanderingTrader.java b/net/minecraft/world/entity/npc/WanderingTrader.java
+index 0f8ec3abead11c46205cd21290c65ec2b859efdc..5d5fa6b4ad18b4213f5098e4d708f3301a6f59c6 100644
+--- a/net/minecraft/world/entity/npc/WanderingTrader.java
++++ b/net/minecraft/world/entity/npc/WanderingTrader.java
+@@ -93,6 +93,13 @@ public class WanderingTrader extends net.minecraft.world.entity.npc.AbstractVill
+     }
+     // Purpur end - Ridables
+ 
++    // Purpur start - Configurable entity base attributes
++    @Override
++    public void initAttributes() {
++        this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(this.level().purpurConfig.wanderingTraderMaxHealth);
++    }
++    // Purpur end - Configurable entity base attributes
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));

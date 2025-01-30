@@ -1,0 +1,128 @@
+--- a/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
++++ b/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
+@@ -78,10 +_,10 @@
+         this.setAliases(Arrays.asList("pl"));
+     }
+ 
+-    private static <T> List<Component> formatProviders(TreeMap<String, PluginProvider<T>> plugins) {
++    private static <T> List<Component> formatProviders(TreeMap<String, PluginProvider<T>> plugins, @NotNull CommandSender sender) { // Purpur - Improve output of plugins command
+         List<Component> components = new ArrayList<>(plugins.size());
+         for (PluginProvider<T> entry : plugins.values()) {
+-            components.add(formatProvider(entry));
++            components.add(formatProvider(entry, sender)); // Purpur - Improve output of plugins command
+         }
+ 
+         boolean isFirst = true;
+@@ -109,7 +_,7 @@
+         return formattedSublists;
+     }
+ 
+-    private static Component formatProvider(PluginProvider<?> provider) {
++    private static Component formatProvider(PluginProvider<?> provider, @NotNull CommandSender sender) { // Purpur - Improve output of plugins command
+         TextComponent.Builder builder = Component.text();
+         if (provider instanceof SpigotPluginProvider spigotPluginProvider && CraftMagicNumbers.isLegacy(spigotPluginProvider.getMeta())) {
+             builder.append(LEGACY_PLUGIN_STAR);
+@@ -117,13 +_,65 @@
+ 
+         String name = provider.getMeta().getName();
+         Component pluginName = Component.text(name, fromStatus(provider))
+-            .clickEvent(ClickEvent.runCommand("/version " + name));
++        // Purpur start - Improve output of plugins command
++            .clickEvent(ClickEvent.suggestCommand("/version " + name));
++
++        if (sender instanceof org.bukkit.entity.Player && sender.hasPermission("bukkit.command.version")) {
++            // Event components
++            String description = provider.getMeta().getDescription();
++            TextComponent.Builder hover = Component.text();
++            hover.append(Component.text("Version: ", NamedTextColor.WHITE)).append(Component.text(provider.getMeta().getVersion(), NamedTextColor.GREEN));
++
++            if (description != null) {
++                hover.append(Component.newline())
++                        .append(Component.text("Description: ", NamedTextColor.WHITE))
++                        .append(Component.text(description, NamedTextColor.GREEN));
++            }
++
++            if (provider.getMeta().getWebsite() != null) {
++                hover.append(Component.newline())
++                        .append(Component.text("Website: ", NamedTextColor.WHITE))
++                        .append(Component.text(provider.getMeta().getWebsite(), NamedTextColor.GREEN));
++            }
++
++            if (!provider.getMeta().getAuthors().isEmpty()) {
++                hover.append(Component.newline());
++                if (provider.getMeta().getAuthors().size() == 1) {
++                    hover.append(Component.text("Author: "));
++                } else {
++                    hover.append(Component.text("Authors: "));
++                }
++
++                hover.append(getAuthors(provider.getMeta()));
++            }
++
++            pluginName = pluginName.hoverEvent(hover.build());
++        }
++        // Purpur end - Improve output of plugins command
+ 
+         builder.append(pluginName);
+ 
+         return builder.build();
+     }
+ 
++    // Purpur start - Improve output of plugins command
++    @NotNull
++    private static TextComponent getAuthors(@NotNull final PluginMeta pluginMeta) {
++        TextComponent.Builder builder = Component.text();
++        List<String> authors = pluginMeta.getAuthors();
++
++        for (int i = 0; i < authors.size(); i++) {
++            if (i > 0) {
++                builder.append(Component.text(i < authors.size() - 1 ? ", " : " and ", NamedTextColor.WHITE));
++            }
++
++            builder.append(Component.text(authors.get(i), NamedTextColor.GREEN));
++        }
++
++        return builder.build();
++    }
++    // Purpur end - Improve output of plugins command
++
+     private static Component asPlainComponents(String strings) {
+         net.kyori.adventure.text.TextComponent.Builder builder = Component.text();
+         for (String string : strings.split("\n")) {
+@@ -182,24 +_,24 @@
+             }
+         }
+ 
+-        Component infoMessage = Component.text("Server Plugins (%s):".formatted(paperPlugins.size() + spigotPlugins.size()), NamedTextColor.WHITE);
++        //Component infoMessage = Component.text("Server Plugins (%s):".formatted(paperPlugins.size() + spigotPlugins.size()), NamedTextColor.WHITE); // Purpur - Improve output of plugins command
+             //.append(INFO_ICON_START.hoverEvent(SERVER_PLUGIN_INFO)); TODO: Add docs
+ 
+-        sender.sendMessage(infoMessage);
+-
+-        if (!paperPlugins.isEmpty()) {
+-            sender.sendMessage(PAPER_HEADER);
+-        }
+-
+-        for (Component component : formatProviders(paperPlugins)) {
++        //sender.sendMessage(infoMessage); // Purpur - Improve output of plugins command
++
++        //if (!paperPlugins.isEmpty()) { // Purpur - Improve output of plugins command
++            sender.sendMessage(PAPER_HEADER.append(Component.text(" (%s):".formatted(paperPlugins.size())))); // Purpur - Improve output of plugins command
++        //} // Purpur - Improve output of plugins command
++
++        for (Component component : formatProviders(paperPlugins, sender)) { // Purpur - Improve output of plugins command
+             sender.sendMessage(component);
+         }
+ 
+-        if (!spigotPlugins.isEmpty()) {
+-            sender.sendMessage(BUKKIT_HEADER);
+-        }
++        //if (!spigotPlugins.isEmpty()) { // Purpur - Improve output of plugins command
++            sender.sendMessage(BUKKIT_HEADER.append(Component.text(" (%s):".formatted(spigotPlugins.size())))); // Purpur - Improve output of plugins command
++        //} // Purpur - Improve output of plugins command
+         
+-        for (Component component : formatProviders(spigotPlugins)) {
++        for (Component component : formatProviders(spigotPlugins, sender)) { // Purpur - Improve output of plugins command
+             sender.sendMessage(component);
+         }
+ 
