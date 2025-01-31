@@ -38,7 +38,7 @@ index c1ebb74b0d4a8e2eb8880ccaf20f0f9bc1940094..4d0916c0ec6c199f9ef359a17cda0891
              Predicate<ItemStack> supportedHeldProjectiles = ((ProjectileWeaponItem)shootable.getItem()).getSupportedHeldProjectiles();
              ItemStack heldProjectile = ProjectileWeaponItem.getHeldProjectile(this, supportedHeldProjectiles);
 diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
-index 43657822f0660613078e9afa512000b5255a1537..2363ec5b718b50cb178f231e544b89c00af79796 100644
+index 43657822f0660613078e9afa512000b5255a1537..a5284118fa4c3c2fff52c8220615c9ca848d9af0 100644
 --- a/net/minecraft/world/entity/player/Player.java
 +++ b/net/minecraft/world/entity/player/Player.java
 @@ -2294,6 +2294,12 @@ public abstract class Player extends LivingEntity {
@@ -60,7 +60,7 @@ index 43657822f0660613078e9afa512000b5255a1537..2363ec5b718b50cb178f231e544b89c0
                      ItemStack item = this.inventory.getItem(i);
 +
 +                    // Purpur start - config for turning bundles into functional quivers
-+                    if ((this.level().purpurConfig.bowUseBundleAsQuiver || this.level().purpurConfig.crossbowUseBundleAsQuiver) && item.getItem() instanceof net.minecraft.world.item.BundleItem) {
++                    if ((this.level().purpurConfig.bowUseBundleAsQuiver || this.level().purpurConfig.crossbowUseBundleAsQuiver) && !this.abilities.instabuild && item.getItem() instanceof net.minecraft.world.item.BundleItem) {
 +                        net.minecraft.world.item.component.BundleContents bundleContents = item.get(net.minecraft.core.component.DataComponents.BUNDLE_CONTENTS);
 +                        if (bundleContents == null || bundleContents.isEmpty()) {
 +                            continue;
