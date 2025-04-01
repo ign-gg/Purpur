@@ -32,7 +32,6 @@ index 99617c08cbd989092ba357d8df928786fd04c89a..9d88b260528c3cea2c5fe8e2760094b0
 +    public double storedMaxSpeed;
 +    public boolean isNewBehavior;
 +    // Purpur end - Minecart settings and WASD controls
-     public net.kyori.adventure.util.TriState frictionState = net.kyori.adventure.util.TriState.NOT_SET; // Paper - Friction API
      // CraftBukkit end
  
 @@ -111,8 +115,13 @@ public abstract class AbstractMinecart extends VehicleEntity {

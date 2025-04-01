@@ -11,8 +11,7 @@
 +            if (player.hasPermission("purpur.sign.style")) line = line.replaceAll("(?i)&([l-or])", "\u00a7$1");
 +            if (player.hasPermission("purpur.sign.magic")) line = line.replaceAll("(?i)&([kr])", "\u00a7$1");
 +
-+            return io.papermc.paper.adventure.PaperAdventure.asVanilla(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(line));
-+        } else {
++            return +        } else {
 +            return Component.literal(line).setStyle(style);
 +        }
 +    }
@@ -26,18 +25,13 @@
 +
 +            org.bukkit.entity.Player craftPlayer =  (org.bukkit.craftbukkit.entity.CraftPlayer) player.getBukkitEntity(); // Purpur - Signs allow color codes
              if (player.isTextFilteringEnabled()) {
--                text = text.setMessage(i, Component.literal(net.minecraft.util.StringUtil.filterText(filteredText1.filteredOrEmpty())).setStyle(style)); // Paper - filter sign text to chat only
-+                text = text.setMessage(i, translateColors(craftPlayer, net.minecraft.util.StringUtil.filterText(filteredText1.filteredOrEmpty()), style)); // Paper - filter sign text to chat only // Purpur - Signs allow color codes
              } else {
                  text = text.setMessage(
--                    i, Component.literal(filteredText1.raw()).setStyle(style), Component.literal(net.minecraft.util.StringUtil.filterText(filteredText1.filteredOrEmpty())).setStyle(style) // Paper - filter sign text to chat only
-+                    i, translateColors(craftPlayer, net.minecraft.util.StringUtil.filterText(filteredText1.raw()), style), translateColors(craftPlayer, net.minecraft.util.StringUtil.filterText(filteredText1.filteredOrEmpty()), style) // Paper - filter sign text to chat only // Purpur - Signs allow color codes
                  );
              }
          }
 @@ -297,6 +_,26 @@
          // CraftBukkit - this
-         return new CommandSourceStack(commandSource, Vec3.atCenterOf(pos), Vec2.ZERO, (ServerLevel)level, 2, string, component, level.getServer(), player); // Paper - Fix commands from signs not firing command events
      }
 +
 +    // Purpur start - Signs allow color codes
@@ -47,8 +41,7 @@
 +        final Component[] lines = front ? frontText.getMessages(filtered) : backText.getMessages(filtered);
 +        final String side = front ? "front_text" : "back_text";
 +        for (int i = 0; i < 4; i++) {
-+            final var component = io.papermc.paper.adventure.PaperAdventure.asAdventure(lines[i]);
-+            final String line = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand().serialize(component);
++            final var component = +            final String line = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand().serialize(component);
 +            final var text = net.kyori.adventure.text.Component.text(line);
 +            final String json = net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson().serialize(text);
 +            final CompoundTag sideNbt = nbt.getCompoundOrEmpty(side);

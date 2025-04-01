@@ -11,7 +11,7 @@
 +        }
 +        net.kyori.adventure.text.Component permissionMessage = getLevel().getServer().server.permissionMessage();
 +        if (!permissionMessage.equals(net.kyori.adventure.text.Component.empty())) {
-+            sendFailure(io.papermc.paper.adventure.PaperAdventure.asVanilla(permissionMessage.replaceText(net.kyori.adventure.text.TextReplacementConfig.builder().matchLiteral("<permission>").replacement(bukkitPermission).build())));
++            sendFailure(org.purpurmc.purpur.adventure.PurpurAdventure.asVanilla(permissionMessage.replaceText(net.kyori.adventure.text.TextReplacementConfig.builder().matchLiteral("<permission>").replacement(bukkitPermission).build())));
 +        }
 +        return false;
 +    }
@@ -45,7 +45,7 @@
 +        if (message == null) {
 +            return;
 +        }
-+        sendSuccess(() -> io.papermc.paper.adventure.PaperAdventure.asVanilla(message), broadcastToOps);
++        sendSuccess(() -> org.purpurmc.purpur.adventure.PurpurAdventure.asVanilla(message), broadcastToOps);
 +    }
 +    // Purpur end - Purpur config files
  

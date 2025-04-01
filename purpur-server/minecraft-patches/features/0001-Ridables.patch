@@ -22,9 +22,6 @@ index f34bc75f324454bf48f0ebf79111706bb027a54b..6ad266592c16bdeccfb689fb2ef2ee37
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1634,6 +1634,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
-             serverLevel.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
-             serverLevel.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
-             serverLevel.updateLagCompensationTick(); // Paper - lag compensation
 +            serverLevel.hasRidableMoveEvent = org.purpurmc.purpur.event.entity.RidableMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Purpur - Ridables
              profilerFiller.push(() -> serverLevel + " " + serverLevel.dimension().location());
              /* Drop global time updates
@@ -35,8 +32,6 @@ index 0e7405a480bffa81493ef2f2078c36ccda542cde..bc5c30430e79e2feb69c165d9e3e9b6a
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -212,6 +212,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
      public final java.util.UUID uuid;
-     public boolean hasPhysicsEvent = true; // Paper - BlockPhysicsEvent
-     public boolean hasEntityMoveEvent; // Paper - Add EntityMoveEvent
 +    public boolean hasRidableMoveEvent = false; // Purpur - Ridables
  
      @Override
@@ -73,7 +68,6 @@ index 63e01ec7e4ab04bb7d389bff485dfedca344bfa2..84b1570d0d88f57f33ff8179f0a78d37
 +
                                      // Entity in bucket - SPIGOT-4048 and SPIGOT-6859a
                                      if ((target instanceof net.minecraft.world.entity.animal.Bucketable && target instanceof LivingEntity && origItem != null && origItem == Items.WATER_BUCKET) && (event.isCancelled() || ServerGamePacketListenerImpl.this.player.getInventory().getSelectedItem().isEmpty() || !ServerGamePacketListenerImpl.this.player.getInventory().getSelectedItem().is(origItem))) {
-                                         target.resendPossiblyDesyncedEntityData(ServerGamePacketListenerImpl.this.player); // Paper - The entire mob gets deleted, so resend it
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
 index d1899b2411e90b4641dcbc58760e4a19b62846c5..1335a04edd053c06e290c070e3c03d02598d97e7 100644
 --- a/net/minecraft/world/entity/Entity.java
@@ -110,7 +104,6 @@ index d1899b2411e90b4641dcbc58760e4a19b62846c5..1335a04edd053c06e290c070e3c03d02
 @@ -4823,4 +4838,44 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          return ((ServerLevel) this.level()).isPositionEntityTicking(this.blockPosition());
      }
-     // Paper end - Expose entity id counter
 +    // Purpur start - Ridables
 +    @Nullable
 +    private Player rider = null;
@@ -213,7 +206,6 @@ index a077e2f518be39bbdba4919ed7161bb28547e56b..a4a19d962bc4665e9368b97cae4b2534
 @@ -3577,8 +3578,10 @@ public abstract class LivingEntity extends Entity implements Attackable {
          this.pushEntities();
          profilerFiller.pop();
-         // Paper start - Add EntityMoveEvent
 -        if (((ServerLevel) this.level()).hasEntityMoveEvent && !(this instanceof Player)) {
 -            if (this.xo != this.getX() || this.yo != this.getY() || this.zo != this.getZ() || this.yRotO != this.getYRot() || this.xRotO != this.getXRot()) {
 +        // Purpur start - Ridables
@@ -222,8 +214,7 @@ index a077e2f518be39bbdba4919ed7161bb28547e56b..a4a19d962bc4665e9368b97cae4b2534
 +                // Purpur end - Ridables
                  Location from = new Location(this.level().getWorld(), this.xo, this.yo, this.zo, this.yRotO, this.xRotO);
                  Location to = new Location(this.level().getWorld(), this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-                 io.papermc.paper.event.entity.EntityMoveEvent event = new io.papermc.paper.event.entity.EntityMoveEvent(this.getBukkitLivingEntity(), from, to.clone());
-@@ -3588,6 +3591,21 @@ public abstract class LivingEntity extends Entity implements Attackable {
+                 @@ -3588,6 +3591,21 @@ public abstract class LivingEntity extends Entity implements Attackable {
                      this.absSnapTo(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ(), event.getTo().getYaw(), event.getTo().getPitch());
                  }
              }
@@ -243,7 +234,6 @@ index a077e2f518be39bbdba4919ed7161bb28547e56b..a4a19d962bc4665e9368b97cae4b2534
 +            }
 +            // Purpur end - Ridables
          }
-         // Paper end - Add EntityMoveEvent
          if (this.level() instanceof ServerLevel serverLevel && this.isSensitiveToWater() && this.isInWaterOrRain()) {
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
 index e3b804f2d612ed7971db450aeea6768109b63470..ca1d0164c90e695731f05de39c1d2fff947ecfc1 100644
@@ -534,7 +524,6 @@ index 4e81bc7215c845b316bcd46ce29f49af7f986088..61e7300bbf272398b2faebf5e537d9c2
              // CraftBukkit start - Got milk?
              org.bukkit.event.player.PlayerBucketFillEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerBucketFillEvent(player.level(), player, this.blockPosition(), this.blockPosition(), null, itemInHand, Items.MILK_BUCKET, hand);
              if (event.isCancelled()) {
-                 player.containerMenu.sendAllDataToRemote(); // Paper - Fix inventory desync
 -                return InteractionResult.PASS;
 +                return tryRide(player, hand); // Purpur - Ridables
              }
@@ -604,7 +593,6 @@ index 585131365c40136cf8a8a715b077982091ee38d5..65ee07e09bb9bafb60abeec4916fdbb0
      public Bee(EntityType<? extends Bee> entityType, Level level) {
          super(entityType, level);
 +        final org.purpurmc.purpur.controller.FlyingMoveControllerWASD flyingController = new org.purpurmc.purpur.controller.FlyingMoveControllerWASD(this, 0.25F, 1.0F, false); // Purpur - Ridables
-         // Paper start - Fix MC-167279
          class BeeFlyingMoveControl extends FlyingMoveControl {
              public BeeFlyingMoveControl(final Mob entity, final int maxPitchChange, final boolean noGravity) {
 @@ -157,11 +158,24 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
@@ -631,7 +619,6 @@ index 585131365c40136cf8a8a715b077982091ee38d5..65ee07e09bb9bafb60abeec4916fdbb0
 +            // Purpur end - Ridables
          }
          this.moveControl = new BeeFlyingMoveControl(this, 20, true);
-         // Paper end - Fix MC-167279
 @@ -173,6 +187,40 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
          this.setPathfindingMalus(PathType.FENCE, -1.0F);
      }
@@ -1167,7 +1154,6 @@ index 0931bab3f52ccc4e405be22559323df90bcc065e..f04342dd4addb2be47533f12a2a475f1
 -                    if (event.isCancelled()) return InteractionResult.PASS;
 +                    if (event.isCancelled()) return tryRide(player, hand); // Purpur - Ridables
                      drops = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(event.getDrops());
-                     // Paper end - custom shear drops
                  }
 diff --git a/net/minecraft/world/entity/animal/Ocelot.java b/net/minecraft/world/entity/animal/Ocelot.java
 index 48c8fdfea8687f37187b6092c285275c12963ea0..b8780911350ac5f4f10acdbed2b13523c8692344 100644
@@ -1727,7 +1713,6 @@ index 67c8f1e82c775818f906eeaa639e55d7c02834c6..aca62391131333d604d21c9aaf2bcea6
 +                        return tryRide(player, hand); // Purpur - Ridables
                      }
                      drops = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(event.getDrops());
-                     // Paper end - custom shear drops
 @@ -175,7 +195,7 @@ public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackM
              return InteractionResult.SUCCESS;
          // Purpur end - Snowman drop and put back pumpkin
@@ -2180,7 +2165,6 @@ index ebdfd3fb6c0de48982d392bb2aa415f3676c6056..4db2d63fbc021f28b8ad8d20cc1cc1bb
 @@ -64,13 +64,50 @@ public class Tadpole extends AbstractFish {
          MemoryModuleType.IS_PANICKING
      );
-     public boolean ageLocked; // Paper
 +    private org.purpurmc.purpur.controller.WaterMoveControllerWASD purpurController; // Purpur - Ridables
  
      public Tadpole(EntityType<? extends AbstractFish> entityType, Level level) {
@@ -2350,7 +2334,6 @@ index d4467235e8dc9d10c61dfb6fd9dc32386903dd09..b60fa4cb07d8dc6b52e76b5e9f596baf
 @@ -83,7 +83,51 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
          super(entityType, level);
          this.getNavigation().setRequiredPathLength(40.0F);
-         this.maxDomestication = 30; // Paper - Missing entity API; configure max temper instead of a hardcoded value
 +        // Purpur start - Ridables
 +        this.moveControl = new org.purpurmc.purpur.controller.MoveControllerWASD(this) {
 +            @Override
@@ -2652,9 +2635,7 @@ index ea9d27a3205b3699b9577f42bb04254bd76e700e..a414934ae4332cc6cf622d4bb19c5937
 --- a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
 +++ b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
 @@ -91,6 +91,7 @@ public class EnderDragon extends Mob implements Enemy {
-     private final net.minecraft.world.level.Explosion explosionSource; // Paper - reusable source for CraftTNTPrimed.getSource()
      @Nullable private BlockPos podium;
-     // Paper end
 +    private boolean hadRider; // Purpur - Ridables
  
      public EnderDragon(EntityType<? extends EnderDragon> entityType, Level level) {
@@ -2662,7 +2643,6 @@ index ea9d27a3205b3699b9577f42bb04254bd76e700e..a414934ae4332cc6cf622d4bb19c5937
 @@ -107,6 +108,37 @@ public class EnderDragon extends Mob implements Enemy {
          this.noPhysics = true;
          this.phaseManager = new EnderDragonPhaseManager(this);
-         this.explosionSource = new net.minecraft.world.level.ServerExplosion(level.getMinecraftWorld(), this, null, null, new Vec3(Double.NaN, Double.NaN, Double.NaN), Float.NaN, true, net.minecraft.world.level.Explosion.BlockInteraction.DESTROY); // Paper
 +
 +        // Purpur start - Ridables
 +        this.moveControl = new org.purpurmc.purpur.controller.FlyingMoveControllerWASD(this) {
@@ -2813,7 +2793,6 @@ index 2f7da367b58fd9c06c4e012e8eb7f59e5a7f9b6d..15e2c0d566256c4ba175e991d6d7fd4f
      private final int[] idleHeadUpdates = new int[2];
      private int destroyBlocksTick;
 +    private int shootCooldown = 0; // Purpur - Ridables
-     private boolean canPortal = false; // Paper
      public final ServerBossEvent bossEvent = (ServerBossEvent)new ServerBossEvent(
              this.getDisplayName(), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS
 @@ -79,9 +80,23 @@ public class WitherBoss extends Monster implements RangedAttackMob {
@@ -3252,7 +3231,6 @@ index c2327306f093c834da9574f9466236fbec572aec..562641cdb76e7a50706459bee8a2dcdf
          this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
      }
 @@ -310,6 +387,7 @@ public class Creeper extends Monster {
-             com.destroystokyo.paper.event.entity.CreeperIgniteEvent event = new com.destroystokyo.paper.event.entity.CreeperIgniteEvent((org.bukkit.entity.Creeper) getBukkitEntity(), ignited);
              if (event.callEvent()) {
                  this.entityData.set(DATA_IS_IGNITED, event.isIgnited());
 +                if (!event.isIgnited()) setSwellDir(-1); // Purpur - Ridables
@@ -3891,7 +3869,6 @@ index 73edb1a4e5daee16fa518c05de24e413847ab65d..2653cf2c353d7ae360201e74c4860a47
 @@ -148,6 +209,7 @@ public class Phantom extends FlyingMob implements Enemy {
      @Override
      public void aiStep() {
-         if (this.isAlive() && this.shouldBurnInDay && this.isSunBurnTick()) { // Paper - shouldBurnInDay API
 +            if (getRider() == null || !this.isControllable()) // Purpur - Ridables
              this.igniteForSeconds(8.0F);
          }
@@ -4155,7 +4132,6 @@ index 6a8a5a76400beeaf69a17d53105a7a522ec5791e..9127e99d632bcd01c2f042c33dc87dd4
 @@ -58,6 +58,7 @@ public class Slime extends Mob implements Enemy {
      public float oSquish;
      private boolean wasOnGround = false;
-     private boolean canWander = true; // Paper - Slime pathfinder events
 +    protected boolean actualJump; // Purpur - Ridables
  
      public Slime(EntityType<? extends Slime> entityType, Level level) {
@@ -4666,7 +4642,6 @@ index e15df574282e0f5ba5791435020bc6ac96860d15..f9233f0689b26a8c65d60ab9421c1216
      @Override
      protected void registerGoals() {
 +        this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
-         if (this.level().paperConfig().entities.behavior.zombiesTargetTurtleEggs) this.goalSelector.addGoal(4, new Zombie.ZombieAttackTurtleEggGoal(this, 1.0, 3)); // Paper - Add zombie targets turtle egg config
          this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
          this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 +        this.targetSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
@@ -4990,7 +4965,6 @@ index 49d43837b88d8f278baa5062aed83a297fe20ed8..15669f9157dc3d3d5e3fb76a668c7e3b
          // Pufferfish start
 -        if (!inactive /*&& this.behaviorTick++ % this.activatedPriority == 0*/) {
 +        if (!inactive && (getRider() == null || !this.isControllable()) /*&& this.behaviorTick++ % this.activatedPriority == 0*/) { // Purpur - Ridables
-             this.getBrain().tick(level, this); // Paper - EAR 2
          }
          else if (this.isLobotomized && shouldRestock()) restock(); // Purpur - Lobotomize stuck villagers
 @@ -418,7 +440,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler

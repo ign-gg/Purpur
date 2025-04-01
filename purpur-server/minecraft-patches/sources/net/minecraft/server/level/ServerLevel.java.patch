@@ -42,14 +42,12 @@
 +        this.preciseTime = this.serverLevelData.getDayTime(); // Purpur - Configurable daylight cycle
      }
  
-     // Paper start
 @@ -477,7 +_,7 @@
          }
  
          int _int = this.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
 -        if (this.sleepStatus.areEnoughSleeping(_int) && this.sleepStatus.areEnoughDeepSleeping(_int, this.players)) {
 +        if (this.purpurConfig.playersSkipNight && this.sleepStatus.areEnoughSleeping(_int) && this.sleepStatus.areEnoughDeepSleeping(_int, this.players)) { // Purpur - Config for skipping night
-             // Paper start - create time skip event - move up calculations
              final long newDayTime = this.levelData.getDayTime() + 24000L;
              org.bukkit.event.world.TimeSkipEvent event = new org.bukkit.event.world.TimeSkipEvent(
 @@ -594,6 +_,13 @@
@@ -90,7 +88,6 @@
      public void tickCustomSpawners(boolean spawnEnemies, boolean spawnFriendlies) {
          for (CustomSpawner customSpawner : this.customSpawners) {
 @@ -678,9 +_,17 @@
-                     && this.random.nextDouble() < currentDifficultyAt.getEffectiveDifficulty() * this.paperConfig().entities.spawning.skeletonHorseThunderSpawnChance.or(0.01) // Paper - Configurable spawn chances for skeleton horses
                      && !this.getBlockState(blockPos.below()).is(Blocks.LIGHTNING_ROD);
                  if (flag) {
 -                    SkeletonHorse skeletonHorse = EntityType.SKELETON_HORSE.create(this, EntitySpawnReason.EVENT);
@@ -127,8 +124,7 @@
 +                        return;
 +                    }
 +                    if (!org.purpurmc.purpur.PurpurConfig.sleepSkippingNight.equalsIgnoreCase("default")) {
-+                        component = io.papermc.paper.adventure.PaperAdventure.asVanilla(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(org.purpurmc.purpur.PurpurConfig.sleepSkippingNight));
-+                    } else
++                        component = +                    } else
 +                    // Purpur end - Customizable sleeping actionbar messages
                      component = Component.translatable("sleep.skipping_night");
                  } else {
@@ -137,8 +133,7 @@
 +                        return;
 +                    }
 +                    if (!org.purpurmc.purpur.PurpurConfig.sleepingPlayersPercent.equalsIgnoreCase("default")) {
-+                        component = io.papermc.paper.adventure.PaperAdventure.asVanilla(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(org.purpurmc.purpur.PurpurConfig.sleepingPlayersPercent,
-+                            net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.parsed("count", Integer.toString(this.sleepStatus.amountSleeping())),
++                        component = +                            net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.parsed("count", Integer.toString(this.sleepStatus.amountSleeping())),
 +                            net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.parsed("total", Integer.toString(this.sleepStatus.sleepersNeeded(_int)))));
 +                    } else
 +                    // Purpur end - Customizable sleeping actionbar messages
@@ -150,7 +145,6 @@
      public void resetWeatherCycle() {
          // CraftBukkit start
 +        if (this.purpurConfig.rainStopsAfterSleep) // Purpur - Option for if rain and thunder should stop on sleep
-         this.serverLevelData.setRaining(false, org.bukkit.event.weather.WeatherChangeEvent.Cause.SLEEP); // Paper - Add cause to Weather/ThunderChangeEvents
          // If we stop due to everyone sleeping we should reset the weather duration to some other random value.
          // Not that everyone ever manages to get the whole server to sleep at the same time....
 @@ -928,6 +_,7 @@
@@ -158,15 +152,12 @@
          }
          // CraftBukkit end
 +        if (this.purpurConfig.thunderStopsAfterSleep) // Purpur - Option for if rain and thunder should stop on sleep
-         this.serverLevelData.setThundering(false, org.bukkit.event.weather.ThunderChangeEvent.Cause.SLEEP); // Paper - Add cause to Weather/ThunderChangeEvents
          // CraftBukkit start
          // If we stop due to everyone sleeping we should reset the weather duration to some other random value.
 @@ -2331,7 +_,7 @@
              // Spigot start
              if (entity.getBukkitEntity() instanceof org.bukkit.inventory.InventoryHolder && (!(entity instanceof ServerPlayer) || entity.getRemovalReason() != Entity.RemovalReason.KILLED)) { // SPIGOT-6876: closeInventory clears death message
-                 // Paper start - Fix merchant inventory not closing on entity removal
 -                if (entity.getBukkitEntity() instanceof org.bukkit.inventory.Merchant merchant && merchant.getTrader() != null) {
 +                if (!entity.level().purpurConfig.playerVoidTrading && entity.getBukkitEntity() instanceof org.bukkit.inventory.Merchant merchant && merchant.getTrader() != null) { // Purpur - Allow void trading
                      merchant.getTrader().closeInventory(org.bukkit.event.inventory.InventoryCloseEvent.Reason.UNLOADED);
                  }
-                 // Paper end - Fix merchant inventory not closing on entity removal

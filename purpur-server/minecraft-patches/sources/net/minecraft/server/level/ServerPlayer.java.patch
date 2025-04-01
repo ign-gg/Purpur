@@ -1,9 +1,6 @@
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -422,6 +_,10 @@
-     public @Nullable com.destroystokyo.paper.event.entity.PlayerNaturallySpawnCreaturesEvent playerNaturallySpawnedEvent; // Paper - PlayerNaturallySpawnCreaturesEvent
-     public @Nullable String clientBrandName = null; // Paper - Brand support
-     public @Nullable org.bukkit.event.player.PlayerQuitEvent.QuitReason quitReason = null; // Paper - Add API for quit reason; there are a lot of changes to do if we change all methods leading to the event
 +    public boolean purpurClient = false; // Purpur - Purpur client support
 +    private boolean tpsBar = false; // Purpur - Implement TPSBar
 +    private boolean compassBar = false; // Purpur - Add compass command
@@ -52,7 +49,6 @@
 +            }
 +            // Purpur end - Add boat fall damage config
              Entity entity = damageSource.getEntity();
-             if (!( // Paper - split the if statement. If below statement is false, hurtServer would not have been evaluated. Return false.
               !(entity instanceof Player player && !this.canHarmPlayer(player))
 @@ -1360,6 +_,7 @@
                  serverLevel.removePlayerImmediately(this, Entity.RemovalReason.CHANGED_DIMENSION);
@@ -81,8 +77,7 @@
 +                    if (org.purpurmc.purpur.PurpurConfig.sleepNotPossible.isBlank()) {
 +                        clientMessage = null;
 +                    } else if (!org.purpurmc.purpur.PurpurConfig.sleepNotPossible.equalsIgnoreCase("default")) {
-+                        clientMessage = io.papermc.paper.adventure.PaperAdventure.asVanilla(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(org.purpurmc.purpur.PurpurConfig.sleepNotPossible));
-+                    } else {
++                        clientMessage = +                    } else {
 +                        clientMessage = Component.translatable("sleep.not_possible");
 +                    }
 +                    if (clientMessage != null) {
@@ -113,8 +108,7 @@
 +
 +    public void sendActionBarMessage(@Nullable net.kyori.adventure.text.Component message) {
 +        if (message != null) {
-+            sendActionBarMessage(io.papermc.paper.adventure.PaperAdventure.asVanilla(message));
-+        }
++            sendActionBarMessage(+        }
 +    }
 +
 +    public void sendActionBarMessage(@Nullable Component message) {
@@ -140,8 +134,7 @@
 +
 +    public void sendMessage(@Nullable net.kyori.adventure.text.Component message) {
 +        if (message != null) {
-+            this.sendSystemMessage(io.papermc.paper.adventure.PaperAdventure.asVanilla(message));
-+        }
++            this.sendSystemMessage(+        }
 +    }
 +    // Purpur end - Component related conveniences
 +

@@ -1,9 +1,6 @@
 --- a/net/minecraft/world/entity/item/ItemEntity.java
 +++ b/net/minecraft/world/entity/item/ItemEntity.java
 @@ -59,6 +_,12 @@
-     public boolean canMobPickup = true; // Paper - Item#canEntityPickup
-     private int despawnRate = -1; // Paper - Alternative item-despawn-rate
-     public net.kyori.adventure.util.TriState frictionState = net.kyori.adventure.util.TriState.NOT_SET; // Paper - Friction API
 +    // Purpur start - Item entity immunities
 +    public boolean immuneToCactus = false;
 +    public boolean immuneToExplosion = false;
@@ -34,7 +31,6 @@
 @@ -528,6 +_,12 @@
      public void setItem(ItemStack stack) {
          this.getEntityData().set(DATA_ITEM, stack);
-         this.despawnRate = this.level().paperConfig().entities.spawning.altItemDespawnRate.enabled ? this.level().paperConfig().entities.spawning.altItemDespawnRate.items.getOrDefault(stack.getItem(), this.level().spigotConfig.itemDespawnRate) : this.level().spigotConfig.itemDespawnRate; // Paper - Alternative item-despawn-rate
 +        // Purpur start - Item entity immunities
 +        if (level().purpurConfig.itemImmuneToCactus.contains(stack.getItem())) immuneToCactus = true;
 +        if (level().purpurConfig.itemImmuneToExplosion.contains(stack.getItem())) immuneToExplosion = true;

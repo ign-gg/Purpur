@@ -33,7 +33,6 @@
 +            cactusHeight++;
 +        }
 +
-+        return cactusHeight < ((Level) world).paperConfig().maxGrowthHeight.cactus;
 +    }
 +
 +    @Override
@@ -47,7 +46,6 @@
 +        while (world.getBlockState(pos.below(cactusHeight)).is(this)) {
 +            cactusHeight++;
 +        }
-+        for (int i = 0; i <= world.paperConfig().maxGrowthHeight.cactus - cactusHeight; i++) {
 +            world.setBlockAndUpdate(pos.above(i), state.setValue(CactusBlock.AGE, 0));
 +        }
 +    }

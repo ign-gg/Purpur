@@ -21,7 +21,6 @@
 +            }
 +            // Purpur end - Enchantment Table Persists Lapis
          };
-         // Paper end - Add missing InventoryHolders
          this.access = access;
 @@ -83,6 +_,16 @@
                  return EnchantmentMenu.EMPTY_SLOT_LAPIS_LAZULI;

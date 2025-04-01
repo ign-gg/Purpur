@@ -11,12 +11,9 @@ index fb3b4e57e98b45adb3a908ddbc2d4ac066e22034..e0489ff30373c214927f34d78787fb85
 +++ b/net/minecraft/world/entity/decoration/ArmorStand.java
 @@ -492,6 +492,7 @@ public class ArmorStand extends LivingEntity {
  
-     private org.bukkit.event.entity.EntityDeathEvent brokenByPlayer(ServerLevel level, DamageSource damageSource) { // Paper
          ItemStack itemStack = new ItemStack(Items.ARMOR_STAND);
 +        if (level.purpurConfig.persistentDroppableEntityDisplayNames) // Purpur - Apply display names from item forms of entities to entities and vice versa
          itemStack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
-         this.drops.add(new DefaultDrop(itemStack, stack -> Block.popResource(this.level(), this.blockPosition(), stack))); // CraftBukkit - add to drops // Paper - Restore vanilla drops behavior
-         return this.brokenByAnything(level, damageSource); // Paper
 diff --git a/net/minecraft/world/entity/decoration/ItemFrame.java b/net/minecraft/world/entity/decoration/ItemFrame.java
 index f9a97000b75db7999b1cbe1f72d680d4d7b803b7..9dfadb5639e840e69274b35f3366322141527104 100644
 --- a/net/minecraft/world/entity/decoration/ItemFrame.java

@@ -11,7 +11,6 @@ index 57f9f705c62706902efe9a7873f0e3866820f7d9..90ac1e4bdca5b6233eeae9bc84549770
 @@ -26,6 +26,12 @@ public class EndCrystal extends Entity {
      private static final boolean DEFAULT_SHOW_BOTTOM = true;
      public int time;
-     public boolean generatedByDragonFight = false; // Paper - Fix invulnerable end crystals
 +    // Purpur start - Phantoms attracted to crystals and crystals shoot phantoms
 +    private net.minecraft.world.entity.monster.Phantom targetPhantom;
 +    private int phantomBeamTicks = 0;
@@ -22,7 +21,6 @@ index 57f9f705c62706902efe9a7873f0e3866820f7d9..90ac1e4bdca5b6233eeae9bc84549770
      public EndCrystal(EntityType<? extends EndCrystal> entityType, Level level) {
          super(entityType, level);
 @@ -94,6 +100,49 @@ public class EndCrystal extends Entity {
-         // Paper end - Fix invulnerable end crystals
          if (this.level().purpurConfig.endCrystalCramming > 0 && this.level().getEntitiesOfClass(EndCrystal.class, getBoundingBox()).size() > this.level().purpurConfig.endCrystalCramming) this.hurt(this.damageSources().cramming(), 6.0F); // Purpur - End Crystal Cramming
  
 +        // Purpur start - Phantoms attracted to crystals and crystals shoot phantoms
@@ -80,7 +78,6 @@ index 2f14561a3722f8175a234ad656ef64d4c58e3b96..6c41a2cc9a772c216abfc2b241429ec7
      public BlockPos anchorPoint;
      Phantom.AttackPhase attackPhase = Phantom.AttackPhase.CIRCLE;
 +    Vec3 crystalPosition; // Purpur - Phantoms attracted to crystals and crystals shoot phantoms
-     // Paper start
      @Nullable
      public java.util.UUID spawningEntity;
 @@ -119,6 +120,25 @@ public class Phantom extends FlyingMob implements Enemy {

@@ -18,16 +18,14 @@
 +            }
 +
 +            if (type.isPresent()) {
-+                final net.kyori.adventure.text.Component mobName = io.papermc.paper.adventure.PaperAdventure.asAdventure(type.get().getDescription());
-+
++                final net.kyori.adventure.text.Component mobName = +
 +                String name = level.purpurConfig.silkTouchSpawnerName;
 +                if (name != null && !name.isEmpty() && !name.equals("Monster Spawner")) {
 +                    net.kyori.adventure.text.Component displayName = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(name, net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.component("mob", mobName));
 +                    if (name.startsWith("<reset>")) {
 +                        displayName = displayName.decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false);
 +                    }
-+                    item.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, io.papermc.paper.adventure.PaperAdventure.asVanilla(displayName));
-+                }
++                    item.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, +                }
 +
 +                java.util.List<String> lore = level.purpurConfig.silkTouchSpawnerLore;
 +                if (lore != null && !lore.isEmpty()) {
@@ -38,8 +36,7 @@
 +                        if (line.startsWith("<reset>")) {
 +                            lineComponent = lineComponent.decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false);
 +                        }
-+                        loreComponentList.add(io.papermc.paper.adventure.PaperAdventure.asVanilla(lineComponent));
-+                    }
++                        loreComponentList.add(+                    }
 +
 +                    item.set(net.minecraft.core.component.DataComponents.LORE, new net.minecraft.world.item.component.ItemLore(loreComponentList, loreComponentList));
 +                }

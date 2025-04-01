@@ -14,8 +14,6 @@
      public double zOld;
 +    public float maxUpStep; // Purpur - Add option to set armorstand step height
      public boolean noPhysics;
--    public final RandomSource random = SHARED_RANDOM; // Paper - Share random for entities to make them more random
-+    public final RandomSource random; // Paper - Share random for entities to make them more random // Add toggle for RNG manipulation
      public int tickCount;
      private int remainingFireTicks = -this.getFireImmuneTicks();
      public boolean wasTouchingWater;
@@ -28,8 +26,7 @@
 +    protected UUID uuid; // Purpur - Add toggle for RNG manipulation
 +    protected String stringUUID; // Purpur - Add toggle for RNG manipulation
      private boolean hasGlowingTag;
-     private final Set<String> tags = new io.papermc.paper.util.SizeLimitedSet<>(new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet<>(), MAX_ENTITY_TAG_COUNT); // Paper - fully limit tag size - replace set impl
-     private final double[] pistonDeltas = new double[]{0.0, 0.0, 0.0};
+     private final Set<String> tags = new      private final double[] pistonDeltas = new double[]{0.0, 0.0, 0.0};
 @@ -394,6 +_,7 @@
      public long activatedTick = Integer.MIN_VALUE;
      public boolean isTemporarilyActive;
@@ -40,7 +37,6 @@
      }
 @@ -406,10 +_,21 @@
      }
-     // Paper end
  
 +    // Purpur start - Add canSaveToDisk to Entity
 +    public boolean canSaveToDisk() {
@@ -61,9 +57,7 @@
          this.blockPosition = BlockPos.ZERO;
          this.chunkPosition = ChunkPos.ZERO;
 @@ -779,6 +_,7 @@
-             && this.level.paperConfig().environment.netherCeilingVoidDamageHeight.test(v -> this.getY() >= v)
              && (!(this instanceof Player player) || !player.getAbilities().invulnerable))) {
-             // Paper end - Configurable nether ceiling damage
 +            if (this.level.purpurConfig.teleportOnNetherCeilingDamage && this.level.getWorld().getEnvironment() == org.bukkit.World.Environment.NETHER && this instanceof ServerPlayer player) player.teleport(org.bukkit.craftbukkit.util.CraftLocation.toBukkit(this.level.getSharedSpawnPos(), this.level)); else // Purpur - Add option to teleport to spawn on nether ceiling damage
              this.onBelowWorld();
          }
@@ -87,9 +81,7 @@
              this.wasTouchingWater = false;
          } else if (this.updateFluidHeightAndDoFluidPushing(FluidTags.WATER, 0.014)) {
 @@ -2364,6 +_,13 @@
-                 compound.putBoolean("Paper.FreezeLock", true);
              }
-             // Paper end
 +
 +            // Purpur start - Fire immune API
 +            if (immuneToFire != null) {
@@ -101,9 +93,7 @@
          } catch (Throwable var8) {
              CrashReport crashReport = CrashReport.forThrowable(var8, "Saving entity NBT");
 @@ -2481,6 +_,13 @@
-                 freezeLocked = compound.getBooleanOr("Paper.FreezeLock", false);
              }
-             // Paper end
 +
 +            // Purpur start - Fire immune API
 +            if (compound.contains("Purpur.FireImmune")) {
@@ -120,7 +110,6 @@
                  if (!this.level().isClientSide()) {
 +                    if (hand == InteractionHand.OFF_HAND && (level().purpurConfig.villagerCanBeLeashed || level().purpurConfig.wanderingTraderCanBeLeashed) && this instanceof net.minecraft.world.entity.npc.AbstractVillager) return InteractionResult.CONSUME; // Purpur - Allow leashing villagers
                      // CraftBukkit start - fire PlayerUnleashEntityEvent
-                     // Paper start - Expand EntityUnleashEvent
                      org.bukkit.event.player.PlayerUnleashEntityEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerUnleashEntityEvent(this, player, hand, !player.hasInfiniteMaterials());
 @@ -2936,15 +_,18 @@
          return Vec3.directionFromRotation(this.getRotationVector());

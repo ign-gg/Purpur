@@ -16,7 +16,6 @@
 @@ -49,6 +_,10 @@
      private org.bukkit.craftbukkit.inventory.view.CraftAnvilView bukkitEntity;
      // CraftBukkit end
-     public boolean bypassEnchantmentLevelRestriction = false; // Paper - bypass anvil level restrictions
 +    // Purpur start - Anvil API
 +    public boolean bypassCost = false;
 +    public boolean canDoUnsafeEnchants = false;
@@ -98,8 +97,6 @@
                              flag1 = true;
                          } else {
                              flag = true;
--                            if (intValue > enchantment.getMaxLevel() && !this.bypassEnchantmentLevelRestriction) { // Paper - bypass anvil level restrictions
-+                            if (!org.purpurmc.purpur.PurpurConfig.allowHigherEnchantsLevels && intValue > enchantment.getMaxLevel() && !this.bypassEnchantmentLevelRestriction) { // Paper - bypass anvil level restrictions // Purpur - Config to allow unsafe enchants
                                  intValue = enchantment.getMaxLevel();
                              }
  
@@ -151,8 +148,7 @@
 +                        if (removeItalics) {
 +                            component = component.decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false);
 +                        }
-+                        itemStack.set(DataComponents.CUSTOM_NAME, io.papermc.paper.adventure.PaperAdventure.asVanilla(component));
-+                    }
++                        itemStack.set(DataComponents.CUSTOM_NAME, +                    }
 +                    else
 +                    // Purpur end - Allow anvil colors
                      itemStack.set(DataComponents.CUSTOM_NAME, Component.literal(this.itemName));

@@ -3,12 +3,10 @@
 @@ -32,7 +_,7 @@
      private static final java.util.Comparator<Holder<Enchantment>> ENCHANTMENT_ORDER = java.util.Comparator.comparing(Holder::getRegisteredName);
      public static final ItemEnchantments EMPTY = new ItemEnchantments(new it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap<>(ENCHANTMENT_ORDER));
-     // Paper end - sort enchantments
 -    private static final Codec<Integer> LEVEL_CODEC = Codec.intRange(1, 255);
 +    private static final Codec<Integer> LEVEL_CODEC = Codec.intRange(1, (org.purpurmc.purpur.PurpurConfig.clampEnchantLevels ? 255 : 32767)); // Purpur - Add toggle for enchant level clamping
      public static final Codec<ItemEnchantments> CODEC = Codec.unboundedMap(Enchantment.CODEC, LEVEL_CODEC)
          .xmap(
-             map -> new net.minecraft.world.item.enchantment.ItemEnchantments(net.minecraft.Util.make(new it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap<>(ENCHANTMENT_ORDER), m -> m.putAll(map))), // Paper - sort enchantments
 @@ -50,7 +_,7 @@
  
          for (Entry<Holder<Enchantment>> entry : enchantments.object2IntEntrySet()) {

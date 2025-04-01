@@ -6,27 +6,27 @@ plugins {
     id("io.papermc.paperweight.patcher") version "2.0.0-beta.16"
 }
 
-val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
+val spigotMavenPublicUrl = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
 
 paperweight {
-    upstreams.paper {
-        ref = providers.gradleProperty("paperCommit")
+    upstreams.spigot {
+        ref = providers.gradleProperty("spigotCommit")
 
         patchFile {
-            path = "paper-server/build.gradle.kts"
+            path = "spigot-server/build.gradle.kts"
             outputFile = file("purpur-server/build.gradle.kts")
             patchFile = file("purpur-server/build.gradle.kts.patch")
         }
         patchFile {
-            path = "paper-api/build.gradle.kts"
+            path = "spigot-api/build.gradle.kts"
             outputFile = file("purpur-api/build.gradle.kts")
             patchFile = file("purpur-api/build.gradle.kts.patch")
         }
-        patchDir("paperApi") {
-            upstreamPath = "paper-api"
+        patchDir("spigotApi") {
+            upstreamPath = "spigot-api"
             excludes = setOf("build.gradle.kts")
-            patchesDir = file("purpur-api/paper-patches")
-            outputDir = file("paper-api")
+            patchesDir = file("purpur-api/spigot-patches")
+            outputDir = file("spigot-api")
         }
     }
 }
@@ -66,7 +66,7 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven(paperMavenPublicUrl)
+        maven(spigotMavenPublicUrl)
         maven("https://jitpack.io")
     }
 

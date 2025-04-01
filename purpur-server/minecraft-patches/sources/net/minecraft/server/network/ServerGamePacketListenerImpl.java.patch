@@ -1,8 +1,7 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -321,6 +_,20 @@
-         this.tickEndEvent = new io.papermc.paper.event.packet.ClientTickEndEvent(player.getBukkitEntity()); // Paper - add client tick end event
-     }
+         this.tickEndEvent = new      }
  
 +    // Purpur start - AFK API
 +    private final com.google.common.cache.LoadingCache<org.bukkit.craftbukkit.entity.CraftPlayer, Boolean> kickPermissionCache = com.google.common.cache.CacheBuilder.newBuilder()
@@ -24,7 +23,6 @@
 @@ -379,6 +_,12 @@
          if (this.player.getLastActionTime() > 0L
              && this.server.getPlayerIdleTimeout() > 0
-             && Util.getMillis() - this.player.getLastActionTime() > this.server.getPlayerIdleTimeout() * 1000L * 60L && !this.player.wonGame) { // Paper - Prevent AFK kick while watching end credits
 +            // Purpur start - AFK API
 +            this.player.setAfk(true);
 +            if (!this.player.level().purpurConfig.idleTimeoutKick || (!Boolean.parseBoolean(System.getenv("PURPUR_FORCE_IDLE_KICK")) && kickPermissionCache.getUnchecked(this.player.getBukkitEntity()))) {
@@ -32,7 +30,6 @@
 +            }
 +            // Purpur end - AFK API
              this.player.resetLastActionTime(); // CraftBukkit - SPIGOT-854
-             this.disconnect(Component.translatable("multiplayer.disconnect.idling"), org.bukkit.event.player.PlayerKickEvent.Cause.IDLING); // Paper - kick event cause
          }
 @@ -615,6 +_,8 @@
                      this.lastYaw = to.getYaw();
@@ -48,13 +45,11 @@
          if (packet.getId() == this.awaitingTeleport) {
              if (this.awaitingPositionFromClient == null) {
 +                ServerGamePacketListenerImpl.LOGGER.warn("Disconnected on accept teleport packet. Was not expecting position data from client at this time"); // Purpur - Add more logger output for invalid movement kicks
-                 this.disconnect(Component.translatable("multiplayer.disconnect.invalid_player_movement"), org.bukkit.event.player.PlayerKickEvent.Cause.INVALID_PLAYER_MOVEMENT); // Paper - kick event cause
                  return;
              }
 @@ -1199,6 +_,10 @@
              final int maxBookPageSize = pageMax.intValue();
-             final double multiplier = Math.clamp(io.papermc.paper.configuration.GlobalConfiguration.get().itemValidation.bookSize.totalMultiplier, 0.3D, 1D);
-             long byteAllowed = maxBookPageSize;
+             final double multiplier = Math.clamp(             long byteAllowed = maxBookPageSize;
 +            // Purpur start - PlayerBookTooLargeEvent
 +            int slot = packet.slot();
 +            ItemStack itemstack = Inventory.isHotbarSlot(slot) || slot == Inventory.SLOT_OFFHAND ? this.player.getInventory().getItem(slot) : ItemStack.EMPTY;
@@ -69,7 +64,6 @@
 -                ServerGamePacketListenerImpl.LOGGER.warn("{} tried to send a book too large. Book size: {} - Allowed: {} - Pages: {}", this.player.getScoreboardName(), byteTotal, byteAllowed, pageList.size());
 +                ServerGamePacketListenerImpl.LOGGER.warn("{} tried to send too large of a book. Book size: {} - Allowed: {} - Pages: {}", this.player.getScoreboardName(), byteTotal, byteAllowed, pageList.size());
 +                org.purpurmc.purpur.event.player.PlayerBookTooLargeEvent event = new org.purpurmc.purpur.event.player.PlayerBookTooLargeEvent(player.getBukkitEntity(), itemstack.asBukkitCopy()); if (event.shouldKickPlayer()) // Purpur - PlayerBookTooLargeEvent
-                 this.disconnectAsync(Component.literal("Book too large!"), org.bukkit.event.player.PlayerKickEvent.Cause.ILLEGAL_ACTION); // Paper - kick event cause // Paper - add proper async disconnect
                  return;
              }
 @@ -1242,31 +_,45 @@
@@ -103,7 +97,6 @@
 -            List<Filterable<String>> list = pages.stream().map(this::filterableFromOutgoing).toList();
 +            List<Filterable<String>> list = pages.stream().map(filteredText -> filterableFromOutgoing(filteredText).map(s -> color(s, hasPerm))).toList(); // Purpur - Allow color codes in books
              item.set(DataComponents.WRITABLE_BOOK_CONTENT, new WritableBookContent(list));
-             this.player.getInventory().setItem(index, CraftEventFactory.handleEditBookEvent(this.player, index, handItem, item)); // CraftBukkit // Paper - Don't ignore result (see other callsite for handleEditBookEvent)
          }
      }
  
@@ -128,7 +121,7 @@
  
 +    // Purpur start - Allow color codes in books
 +    private Component hexColor(String str, boolean hasPerm) {
-+        return hasPerm ? PaperAdventure.asVanilla(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand().deserialize(str)) : Component.literal(str);
++        return hasPerm ? PurpurAdventure.asVanilla(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand().deserialize(str)) : Component.literal(str);
 +    }
 +
 +    private String color(String str, boolean hasPerm) {
@@ -153,16 +146,13 @@
 +        if (invalidX || invalidY || invalidZ || invalidYaw || invalidPitch) {
 +            ServerGamePacketListenerImpl.LOGGER.warn(String.format("Disconnected on move player packet. Invalid data: x=%b, y=%b, z=%b, yaw=%b, pitch=%b", invalidX, invalidY, invalidZ, invalidYaw, invalidPitch));
 +        // Purpur end - Add more logger output for invalid movement kicks
-             this.disconnect(Component.translatable("multiplayer.disconnect.invalid_player_movement"), org.bukkit.event.player.PlayerKickEvent.Cause.INVALID_PLAYER_MOVEMENT); // Paper - kick event cause
          } else {
              ServerLevel serverLevel = this.player.serverLevel();
 @@ -1496,7 +_,7 @@
                                          movedWrongly = true;
                                          if (event.getLogWarning())
-                                      // Paper end
 -                                    LOGGER.warn("{} moved wrongly!", this.player.getName().getString());
 +                                    LOGGER.warn("{} moved wrongly!, ({})", this.player.getName().getString(), verticalDelta); // Purpur - AFK API
-                                     } // Paper
                                  }
  
 @@ -1552,6 +_,8 @@
@@ -217,8 +207,7 @@
 @@ -2672,6 +_,7 @@
  
                  AABB boundingBox = target.getBoundingBox();
-                 if (this.player.canInteractWithEntity(boundingBox, io.papermc.paper.configuration.GlobalConfiguration.get().misc.clientInteractionLeniencyDistance.or(3.0))) { // Paper - configurable lenience value for interact range
-+                    if (target instanceof net.minecraft.world.entity.Mob mob) mob.ticksSinceLastInteraction = 0; // Purpur - Entity lifespan
+                 if (this.player.canInteractWithEntity(boundingBox, +                    if (target instanceof net.minecraft.world.entity.Mob mob) mob.ticksSinceLastInteraction = 0; // Purpur - Entity lifespan
                      packet.dispatch(
                          new ServerboundInteractPacket.Handler() {
                              private void performInteraction(InteractionHand hand, ServerGamePacketListenerImpl.EntityInteraction entityInteraction, PlayerInteractEntityEvent event) { // CraftBukkit

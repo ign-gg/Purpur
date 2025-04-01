@@ -15,5 +15,4 @@
 -                    if (block instanceof LeavesBlock) {
 +                    if (this.level().purpurConfig.ravagerGriefableBlocks.contains(block)) { // Purpur - Configurable ravager griefable blocks list
                          // CraftBukkit start
-                         if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this, blockPos, blockState.getFluidState().createLegacyBlock())) { // Paper - fix wrong block state
                              continue;

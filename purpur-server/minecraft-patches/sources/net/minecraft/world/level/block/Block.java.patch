@@ -8,18 +8,13 @@
 +    public float fallDamageMultiplier = 1.0F;
 +    public float fallDistanceMultiplier = 1.0F;
 +    // Purpur end - Configurable block fall damage modifiers
-     // Paper start - Protect Bedrock and End Portal/Frames from being destroyed
      public final boolean isDestroyable() {
-         return io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.allowPermanentBlockBreakExploits ||
-@@ -345,7 +_,7 @@
-             event.setExpToDrop(block.getExpDrop(state, serverLevel, pos, net.minecraft.world.item.ItemStack.EMPTY, true)); // Paper - Properly handle xp dropping
+         return @@ -345,7 +_,7 @@
              event.callEvent();
              for (org.bukkit.inventory.ItemStack drop : event.getDrops()) {
 -                popResource(serverLevel, pos, org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(drop));
 +                popResource(serverLevel, pos, applyLoreFromTile(org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(drop), blockEntity)); // Purpur - Persistent BlockEntity Lore and DisplayName
              }
-             state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false); // Paper - Properly handle xp dropping
-             block.popExperience(serverLevel, pos, event.getExpToDrop()); // Paper - Properly handle xp dropping
 @@ -363,7 +_,7 @@
  
      public static void dropResources(BlockState state, LevelAccessor level, BlockPos pos, @Nullable BlockEntity blockEntity) {
@@ -31,11 +26,9 @@
      }
 @@ -375,11 +_,30 @@
      public static void dropResources(BlockState state, Level level, BlockPos pos, @Nullable BlockEntity blockEntity, @Nullable Entity entity, ItemStack tool, boolean dropExperience) {
-     // Paper end - Properly handle xp dropping
          if (level instanceof ServerLevel) {
 -            getDrops(state, (ServerLevel)level, pos, blockEntity, entity, tool).forEach(stack -> popResource(level, pos, stack));
 +            getDrops(state, (ServerLevel)level, pos, blockEntity, entity, tool).forEach(stack -> popResource(level, pos, applyLoreFromTile(stack, blockEntity))); // Purpur - Persistent BlockEntity Lore and DisplayName
-             state.spawnAfterBreak((ServerLevel)level, pos, tool, dropExperience); // Paper - Properly handle xp dropping
          }
      }
  

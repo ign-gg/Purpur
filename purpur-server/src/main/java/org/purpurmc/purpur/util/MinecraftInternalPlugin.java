@@ -1,6 +1,5 @@
 package org.purpurmc.purpur.util;
 
-import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -39,11 +38,6 @@ public class MinecraftInternalPlugin extends PluginBase {
 
     @Override
     public PluginDescriptionFile getDescription() {
-        return pdf;
-    }
-
-    @Override
-    public io.papermc.paper.plugin.configuration.PluginMeta getPluginMeta() {
         return pdf;
     }
 
@@ -139,11 +133,6 @@ public class MinecraftInternalPlugin extends PluginBase {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        throw new UnsupportedOperationException("Not supported.");
-    }
-
-    @Override
-    public @NotNull LifecycleEventManager<Plugin> getLifecycleManager() {
         throw new UnsupportedOperationException("Not supported.");
     }
 }

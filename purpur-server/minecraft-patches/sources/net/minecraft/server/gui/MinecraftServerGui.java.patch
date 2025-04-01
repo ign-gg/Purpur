@@ -24,7 +24,6 @@
 @@ -54,7 +_,7 @@
          jFrame.setLocationRelativeTo(null);
          jFrame.setVisible(true);
-         // Paper start - Improve ServerGUI
 -        jFrame.setName("Minecraft server");
 +        jFrame.setName("Purpur Minecraft server"); // Purpur - Improve GUI
          try {
@@ -95,7 +94,6 @@
 @@ -159,7 +_,7 @@
      }
  
-     private static final java.util.regex.Pattern ANSI = java.util.regex.Pattern.compile("\\e\\[[\\d;]*[^\\d;]"); // CraftBukkit // Paper
 -    public void print(JTextArea textArea, JScrollPane scrollPane, String line) {
 +    public void print(org.purpurmc.purpur.gui.JColorTextPane textArea, JScrollPane scrollPane, String line) { // Purpur - GUI Improvements
          if (!SwingUtilities.isEventDispatchThread()) {
@@ -131,5 +129,4 @@
 +    }
 +    // Purpur end - GUI Improvements
  
-     // Paper start - Add onboarding message for initial server start
      private JComponent buildOnboardingPanel() {

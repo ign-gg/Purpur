@@ -45,7 +45,6 @@ index de89e45ecd4ac4c6db8b74bbe3dd6b4a7cf21671..f15e4cfd8c0ac5e08779dbe6b9aa40bf
                  Block block1 = level.getBlockState(this.aboveFarmlandPos.below()).getBlock();
 -                if (block instanceof CropBlock && ((CropBlock)block).isMaxAge(blockState)) {
 +                if (block instanceof CropBlock && ((CropBlock)block).isMaxAge(blockState) && !this.clericWartFarmer || this.clericWartFarmer && block == net.minecraft.world.level.block.Blocks.NETHER_WART && blockState.getValue(net.minecraft.world.level.block.NetherWartBlock.AGE) == 3) { // Purpur - Option for Villager Clerics to farm Nether Wart
-                     if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(owner, this.aboveFarmlandPos, blockState.getFluidState().createLegacyBlock())) { // CraftBukkit // Paper - fix wrong block state
                      level.destroyBlock(this.aboveFarmlandPos, true, owner);
                      } // CraftBukkit
                  }

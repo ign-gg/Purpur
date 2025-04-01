@@ -2,8 +2,6 @@
 +++ b/net/minecraft/world/entity/player/Player.java
 @@ -210,11 +_,20 @@
      private int currentImpulseContextResetGraceTime = 0;
-     public boolean affectsSpawning = true; // Paper - Affects Spawning API
-     public net.kyori.adventure.util.TriState flyingFallDamage = net.kyori.adventure.util.TriState.NOT_SET; // Paper - flying fall damage
 +    public int burpDelay = 0; // Purpur - Burp delay
 +    public boolean canPortalInstant = false; // Purpur - Add portal permission bypass
  
@@ -62,9 +60,7 @@
                  } else if (!entity.isRemoved()) {
                      this.touch(entity);
 @@ -1214,7 +_,7 @@
-                         flag2 = flag2 && !this.level().paperConfig().entities.behavior.disablePlayerCrits; // Paper - Toggleable player crits
                          if (flag2) {
-                             damageSource = damageSource.critical(); // Paper - critical damage API
 -                            f *= 1.5F;
 +                            f *= (float) this.level().purpurConfig.playerCriticalDamageMultiplier; // Purpur - Add config change multiplier critical damage value
                          }

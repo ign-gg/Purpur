@@ -2,7 +2,6 @@
 +++ b/net/minecraft/world/entity/monster/AbstractSkeleton.java
 @@ -158,10 +_,7 @@
          this.reassessWeaponGoal();
-         this.setCanPickUpLoot(this.level().paperConfig().entities.behavior.mobsCanAlwaysPickUpLoot.skeletons || random.nextFloat() < 0.55F * difficulty.getSpecialMultiplier()); // Paper - Add world settings for mobs picking up loot
          if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
 -            LocalDate localDate = LocalDate.now();
 -            int i = localDate.get(ChronoField.DAY_OF_MONTH);

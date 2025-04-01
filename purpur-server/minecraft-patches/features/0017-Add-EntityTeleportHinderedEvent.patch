@@ -21,9 +21,7 @@ index 68914268ca9350a6c1d794e011e1f9a8aecd609c..8e53b45dbf740de6c6fe499ef424d11b
 --- a/net/minecraft/world/level/block/EndGatewayBlock.java
 +++ b/net/minecraft/world/level/block/EndGatewayBlock.java
 @@ -99,6 +99,13 @@ public class EndGatewayBlock extends BaseEntityBlock implements Portal {
-             org.bukkit.event.entity.EntityPortalEnterEvent event = new org.bukkit.event.entity.EntityPortalEnterEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level), org.bukkit.PortalType.END_GATEWAY); // Paper - add portal type
              if (!event.callEvent()) return;
-             // Paper end - call EntityPortalEnterEvent
 +            // Purpur start - Add EntityTeleportHinderedEvent
 +            if (level.purpurConfig.imposeTeleportRestrictionsOnGateways && (entity.isVehicle() || entity.isPassenger())) {
 +                if (!new org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent(entity.getBukkitEntity(), entity.isPassenger() ? org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent.Reason.IS_PASSENGER : org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent.Reason.IS_VEHICLE, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.END_GATEWAY).callEvent()) {
@@ -40,8 +38,7 @@ index cf2b105c98a3b22b9bea59cbafcd598657dc92b5..65d3477ed32c3f0db58aab6ab87d8f17
 +++ b/net/minecraft/world/level/block/EndPortalBlock.java
 @@ -59,6 +59,13 @@ public class EndPortalBlock extends BaseEntityBlock implements Portal {
      protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
-         if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.block.CraftBlock.at(level, pos)).callEvent()) { return; } // Paper - Add EntityInsideBlockEvent
-         if (entity.canUsePortal(false)) {
+         if (!new          if (entity.canUsePortal(false)) {
 +            // Purpur start - Add EntityTeleportHinderedEvent
 +            if (level.purpurConfig.imposeTeleportRestrictionsOnEndPortals && (entity.isVehicle() || entity.isPassenger())) {
 +                if (!new org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent(entity.getBukkitEntity(), entity.isPassenger() ? org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent.Reason.IS_PASSENGER : org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent.Reason.IS_VEHICLE, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.END_PORTAL).callEvent()) {
@@ -50,7 +47,6 @@ index cf2b105c98a3b22b9bea59cbafcd598657dc92b5..65d3477ed32c3f0db58aab6ab87d8f17
 +            }
 +            // Purpur end - Add EntityTeleportHinderedEvent
              // CraftBukkit start - Entity in portal
-             org.bukkit.event.entity.EntityPortalEnterEvent event = new org.bukkit.event.entity.EntityPortalEnterEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level), org.bukkit.PortalType.ENDER); // Paper - add portal type
              level.getCraftServer().getPluginManager().callEvent(event);
 diff --git a/net/minecraft/world/level/block/NetherPortalBlock.java b/net/minecraft/world/level/block/NetherPortalBlock.java
 index fa0d6baa40c6052c993d870d124af911e8621f0a..1c58af94050b75cd8f405a201448c822792e594a 100644
@@ -58,8 +54,7 @@ index fa0d6baa40c6052c993d870d124af911e8621f0a..1c58af94050b75cd8f405a201448c822
 +++ b/net/minecraft/world/level/block/NetherPortalBlock.java
 @@ -118,6 +118,13 @@ public class NetherPortalBlock extends Block implements Portal {
      protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
-         if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.block.CraftBlock.at(level, pos)).callEvent()) { return; } // Paper - Add EntityInsideBlockEvent
-         if (entity.canUsePortal(false)) {
+         if (!new          if (entity.canUsePortal(false)) {
 +            // Purpur start - Add EntityTeleportHinderedEvent
 +            if (level.purpurConfig.imposeTeleportRestrictionsOnNetherPortals && (entity.isVehicle() || entity.isPassenger())) {
 +                if (!new org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent(entity.getBukkitEntity(), entity.isPassenger() ? org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent.Reason.IS_PASSENGER : org.purpurmc.purpur.event.entity.EntityTeleportHinderedEvent.Reason.IS_VEHICLE, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.NETHER_PORTAL).callEvent()) {
@@ -68,5 +63,4 @@ index fa0d6baa40c6052c993d870d124af911e8621f0a..1c58af94050b75cd8f405a201448c822
 +            }
 +            // Purpur end - Add EntityTeleportHinderedEvent
              // CraftBukkit start - Entity in portal
-             org.bukkit.event.entity.EntityPortalEnterEvent event = new org.bukkit.event.entity.EntityPortalEnterEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level), org.bukkit.PortalType.NETHER); // Paper - add portal type
              level.getCraftServer().getPluginManager().callEvent(event);

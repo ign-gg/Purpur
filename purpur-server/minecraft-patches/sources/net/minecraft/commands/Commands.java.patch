@@ -26,8 +26,6 @@
          if (selection.includeIntegrated) {
 @@ -502,6 +_,7 @@
      private void runSync(ServerPlayer player, java.util.Collection<String> bukkit, RootCommandNode<SharedSuggestionProvider> rootCommandNode) {
-         // Paper end - Perf: Async command map building
-         new com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent<CommandSourceStack>(player.getBukkitEntity(), (RootCommandNode) rootCommandNode, true).callEvent(); // Paper - Brigadier API
 +        if (org.bukkit.event.player.PlayerCommandSendEvent.getHandlerList().getRegisteredListeners().length > 0) { // Purpur - Skip events if there's no listeners
          org.bukkit.event.player.PlayerCommandSendEvent event = new org.bukkit.event.player.PlayerCommandSendEvent(player.getBukkitEntity(), new java.util.LinkedHashSet<>(bukkit));
          event.getPlayer().getServer().getPluginManager().callEvent(event);

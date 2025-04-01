@@ -12,12 +12,10 @@
 +                org.purpurmc.purpur.tool.Actionable actionable = optional.get(); // Purpur - Tool actionable options
 +                BlockState state = actionable.into().withPropertiesOf(level.getBlockState(clickedPos)); // Purpur - Tool actionable options
                  ItemStack itemInHand = context.getItemInHand();
-                 // Paper start - EntityChangeBlockEvent
 -                if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(player, clickedPos, optional.get())) {
 +                if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(player, clickedPos, state)) { // Purpur - Tool actionable options
                      return InteractionResult.PASS;
                  }
-                 // Paper end
 @@ -76,8 +_,15 @@
                      CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer)player, clickedPos, itemInHand);
                  }

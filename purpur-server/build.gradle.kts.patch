@@ -1,16 +1,14 @@
---- a/paper-server/build.gradle.kts
-+++ b/paper-server/build.gradle.kts
+--- a/spigot-server/build.gradle.kts
++++ b/spigot-server/build.gradle.kts
 @@ -28,6 +_,18 @@
-     //    oldPaperCommit = "f4f275519f7c1fbe9db173b7144a4fe81440e365"
-     //}
  
 +    // Purpur start - Rebrand
 +    val purpur = forks.register("purpur") {
-+        upstream.patchDir("paperServer") {
-+            upstreamPath = "paper-server"
++        upstream.patchDir("spigotServer") {
++            upstreamPath = "spigot-server"
 +            excludes = setOf("src/minecraft", "patches", "build.gradle.kts")
-+            patchesDir = rootDirectory.dir("purpur-server/paper-patches")
-+            outputDir = rootDirectory.dir("paper-server")
++            patchesDir = rootDirectory.dir("purpur-server/spigot-patches")
++            outputDir = rootDirectory.dir("spigot-server")
 +        }
 +    }
 +    activeFork = purpur
@@ -27,16 +25,16 @@
 +// Purpur start - Rebrand
 +sourceSets {
 +    main {
-+        java { srcDir("../paper-server/src/main/java") }
-+        resources { srcDir("../paper-server/src/main/resources") }
++        java { srcDir("../spigot-server/src/main/java") }
++        resources { srcDir("../spigot-server/src/main/resources") }
 +    }
 +    test {
-+        java { srcDir("../paper-server/src/test/java") }
-+        resources { srcDir("../paper-server/src/test/resources") }
++        java { srcDir("../spigot-server/src/test/java") }
++        resources { srcDir("../spigot-server/src/test/resources") }
 +    }
 +}
 +val log4jPlugins = sourceSets.create("log4jPlugins") {
-+    java { srcDir("../paper-server/src/log4jPlugins/java") }
++    java { srcDir("../spigot-server/src/log4jPlugins/java") }
 +}
 +// Purpur end - Rebrand
  configurations.named(log4jPlugins.compileClasspathConfigurationName) {
@@ -46,7 +44,7 @@
  }
  
  dependencies {
--    implementation(project(":paper-api"))
+-    implementation(project(":spigot-api"))
 +    implementation(project(":purpur-api")) // Purpur
      implementation("ca.spottedleaf:concurrentutil:0.0.3")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
@@ -66,16 +64,16 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
--            "Implementation-Title" to "Paper",
+-            "Implementation-Title" to "Spigot",
 +            "Implementation-Title" to "Purpur", // Purpur
              "Implementation-Version" to implementationVersion,
              "Implementation-Vendor" to date,
--            "Specification-Title" to "Paper",
+-            "Specification-Title" to "Spigot",
 +            "Specification-Title" to "Purpur", // Purpur
              "Specification-Version" to project.version,
--            "Specification-Vendor" to "Paper Team",
--            "Brand-Id" to "papermc:paper",
--            "Brand-Name" to "Paper",
+-            "Specification-Vendor" to "Spigot Team",
+-            "Brand-Id" to "spigotmc:spigot",
+-            "Brand-Name" to "Spigot",
 +            "Specification-Vendor" to "Purpur Team", // Purpur
 +            "Brand-Id" to "purpurmc:purpur", // Purpur
 +            "Brand-Name" to "Purpur", // Purpur
@@ -86,8 +84,3 @@
      jvmArgumentProviders.add(provider)
  }
  
--val generatedDir: java.nio.file.Path = layout.projectDirectory.dir("src/generated/java").asFile.toPath()
-+val generatedDir: java.nio.file.Path = layout.projectDirectory.dir("../paper-server/src/generated/java").asFile.toPath()
- idea {
-     module {
-         generatedSourceDirs.add(generatedDir.toFile())

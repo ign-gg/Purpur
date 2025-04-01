@@ -45,15 +45,9 @@ javac 21.0.5
 
 ## Understanding Patches
 
-Unlike the Purpur API and its implementation, modifications to Paper and Minecraft source files
+Unlike the Purpur API and its implementation, modifications to the Minecraft source files
 are done through patches. These patches/extensions are split into three different sets of two
 categories, which are formatted like so:
-
-Under `purpur-api`:
-
-- `paper-patches` (applies to the `paper-server/` git repo)
-    - `sources`: Per-file patches to Paper API classes;
-    - `features`: Larger feature patches that modify multiple Paper API classes.
 
 Under `purpur-server`:
 
@@ -61,9 +55,6 @@ Under `purpur-server`:
   - `sources`: Per-file patches to Minecraft classes;
   - `resources`: Per-file patches to Minecraft data files;
   - `features`: Larger feature patches that modify multiple classes.
-- `paper-patches`
-  - `sources`: Per-file patches to Paper Server classes;
-  - `features`: Larger feature patches that modify multiple Paper Server classes.
 
 Because this entire structure is based on patches and git, a basic understanding
 of how to use git is required. A basic tutorial can be found here:
@@ -72,16 +63,14 @@ of how to use git is required. A basic tutorial can be found here:
 Assuming you have already forked the repository:
 
 1. Clone your fork to your local machine;
-2. Type `./gradlew applyAllPatches` in a terminal to apply the patches to both paper and minecraft classes.
+2. Type `./gradlew applyPatches` in a terminal to apply the patches to minecraft classes.
    On Windows, remove `./` from the beginning of `gradlew` commands;
-3. cd into `purpur-server` for server changes, `purpur-api` for API changes,
-   `paper-api` for Paper API changes, and `paper-server` for Paper Server changes.
+3. cd into `purpur-server` for server changes, `purpur-api` for API changes.
 
 `purpur-server/src/minecraft/java` and `purpur-server/src/minecraft/java/resources` are not git repositories in the traditional sense.
 Its initial commits are the decompiled and deobfuscated Minecraft source and resource files. The per-file
 patches are applied on top of these files as a single, large commit, which is then followed
-by the individual feature-patch commits. `paper-api/` and `paper-server/`
-follow the same concept; each paper "project" has its own git repository that also includes it's own feature and per-file patches.
+by the individual feature-patch commits.
 
 ## Understanding the Gradle Tasks
 
@@ -98,12 +87,12 @@ Each "project" that includes a local git repository has the following available 
 
 Some additional useful tasks are listed below:
 
-- `./gradlew applyAllPatches` - Applies all patches defined in the paperweight-patcher project and the server project. (equivalent to running `applyPaperPatches` and then `applyAllServerPatches` in a second Gradle invocation)
+- `./gradlew applyAllPatches` - Applies all patches defined in the paperweight-patcher project and the server project. (equivalent to running `applyPatches` and then `applyAllServerPatches` in a second Gradle invocation)
 - `./gradlew applyAllServerFeaturePatches` - Applies all Minecraft and upstream server feature patches (equivalent to `applyMinecraftFeaturePatches applyServerFeaturePatches`)
 - `./gradlew applyAllServerFilePatches` - Applies all Minecraft and upstream server file patches (equivalent to `applyMinecraftFilePatches applyServerFilePatches`)
 - `./gradlew applyAllServerPatches` - Applies all Minecraft and upstream server patches (equivalent to `applyMinecraftPatches applyServerPatches`)
 
-- `./gradlew rebuildPaperSingleFilePatches` - Fixups and rebuilds all paper single-file patches. This is how you'd make changes to the `build.gradle.kts` files located under `purpur-api` and `purpur-server`
+- `./gradlew rebuildSingleFilePatches` - Fixups and rebuilds all single-file patches. This is how you'd make changes to the `build.gradle.kts` files located under `purpur-api` and `purpur-server`
 
 ## Modifying (per-file) patches
 
@@ -229,7 +218,7 @@ when making and submitting changes.
 
 ## Formatting
 
-All modifications to Minecraft files and Paper files should be marked. For historical reasons,
+All modifications to Minecraft files should be marked. For historical reasons,
 API and API-implementation contain a lot of these too, but they are no longer
 required.
 
@@ -273,7 +262,7 @@ into most IDEs and formatters by default. There are a few notes, however:
   hard to parse generics in a case where the base type itself is already obvious.
 
 ### Imports
-When adding new imports to a Minecraft or Paper class, use the fully qualified class name
+When adding new imports to a Minecraft class, use the fully qualified class name
 instead of adding a new import to the top of the file. If you are using a type a significant number of times, you
 can add an import with a comment. However, if it's only used a couple of times, the FQN is preferred to prevent future
 patch conflicts in the import section of the file.

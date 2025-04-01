@@ -11,7 +11,6 @@ index 6c41a2cc9a772c216abfc2b241429ec712119bb4..eaa5f2db1bc6b01ef6a508cc5a60ff1e
 @@ -54,6 +54,7 @@ public class Phantom extends FlyingMob implements Enemy {
      public java.util.UUID spawningEntity;
      public boolean shouldBurnInDay = true;
-     // Paper end
 +    private static final net.minecraft.world.item.crafting.Ingredient TORCH = net.minecraft.world.item.crafting.Ingredient.of(net.minecraft.world.item.Items.TORCH, net.minecraft.world.item.Items.SOUL_TORCH); // Purpur - Phantoms burn in light
  
      public Phantom(EntityType<? extends Phantom> entityType, Level level) {
@@ -20,11 +19,9 @@ index 6c41a2cc9a772c216abfc2b241429ec712119bb4..eaa5f2db1bc6b01ef6a508cc5a60ff1e
  
      @Override
      public void aiStep() {
--        if (this.isAlive() && this.shouldBurnInDay && this.isSunBurnTick()) { // Paper - shouldBurnInDay API
 +        // Purpur start - Phantoms burn in light
 +        boolean burnFromDaylight = this.shouldBurnInDay && this.isSunBurnTick() && this.level().purpurConfig.phantomBurnInDaylight;
 +        boolean burnFromLightSource = this.level().purpurConfig.phantomBurnInLight > 0 && this.level().getMaxLocalRawBrightness(blockPosition()) >= this.level().purpurConfig.phantomBurnInLight;
-+        if (this.isAlive() && (burnFromDaylight || burnFromLightSource)) { // Paper - shouldBurnInDay API
 +        // Purpur end - Phantoms burn in light
              if (getRider() == null || !this.isControllable()) // Purpur - Ridables
              this.igniteForSeconds(8.0F);

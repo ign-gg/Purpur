@@ -11,7 +11,6 @@ index bdae20191d2e5765761442eb06924968e710b189..476b570ffe9d2df173bd57b57fe65372
 @@ -1904,7 +1904,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
          if (this.level() instanceof ServerLevel serverLevel) {
              boolean var6 = false;
-             if (this.dead && entitySource instanceof WitherBoss) { // Paper
 -                if (serverLevel.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
 +                if (serverLevel.purpurConfig.witherBypassMobGriefing ^ serverLevel.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) { // Purpur - Add mobGriefing bypass to everything affected
                      BlockPos blockPos = this.blockPosition();
@@ -62,10 +61,6 @@ index 7a75415a469bc99f45a5cfaab038181717903f1d..fc244a1fbd401f6ea92e7428b9738939
 +++ b/net/minecraft/world/entity/ai/goal/EatBlockGoal.java
 @@ -67,7 +67,7 @@ public class EatBlockGoal extends Goal {
              BlockPos blockPos = this.mob.blockPosition();
-             final BlockState blockState = this.level.getBlockState(blockPos); // Paper - fix wrong block state
-             if (IS_EDIBLE.test(blockState)) { // Paper - fix wrong block state
--                if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.mob, blockPos, blockState.getFluidState().createLegacyBlock(), !getServerLevel(this.level).getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))) { // CraftBukkit // Paper - fix wrong block state
-+                if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.mob, blockPos, blockState.getFluidState().createLegacyBlock(), !getServerLevel(this.level).purpurConfig.sheepBypassMobGriefing == !getServerLevel(this.level).getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))) { // CraftBukkit // Paper - fix wrong block state // Purpur - Add mobGriefing bypass to everything affected
                      this.level.destroyBlock(blockPos, false);
                  }
  
@@ -73,8 +68,6 @@ index 7a75415a469bc99f45a5cfaab038181717903f1d..fc244a1fbd401f6ea92e7428b9738939
              } else {
                  BlockPos blockPos1 = blockPos.below();
                  if (this.level.getBlockState(blockPos1).is(Blocks.GRASS_BLOCK)) {
--                    if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.mob, blockPos1, Blocks.DIRT.defaultBlockState(), !getServerLevel(this.level).getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))) { // CraftBukkit // Paper - Fix wrong block state
-+                    if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.mob, blockPos1, Blocks.DIRT.defaultBlockState(), !getServerLevel(this.level).purpurConfig.sheepBypassMobGriefing == !getServerLevel(this.level).getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))) { // CraftBukkit // Paper - Fix wrong block state // Purpur - Add mobGriefing bypass to everything affected
                          this.level.levelEvent(2001, blockPos1, Block.getId(Blocks.GRASS_BLOCK.defaultBlockState()));
                          this.level.setBlock(blockPos1, Blocks.DIRT.defaultBlockState(), 2);
                      }
@@ -221,9 +214,6 @@ index c200d57841304ba0d7a76fdd9a440fe9f2b25136..ff3761507f2025fd1e652afee03a18de
                              Block block = blockState.getBlock();
                              if (block instanceof InfestedBlock) {
                                  // CraftBukkit start
--                                BlockState afterState = getServerLevel(level).getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? blockState.getFluidState().createLegacyBlock() : ((InfestedBlock) block).hostStateByInfested(level.getBlockState(blockPos1)); // Paper - fix wrong block state
-+                                BlockState afterState = getServerLevel(level).purpurConfig.silverfishBypassMobGriefing ^ getServerLevel(level).getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? blockState.getFluidState().createLegacyBlock() : ((InfestedBlock) block).hostStateByInfested(level.getBlockState(blockPos1)); // Paper - fix wrong block state // Purpur - Add mobGriefing bypass to everything affected
-                                 if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.silverfish, blockPos1, afterState)) { // Paper - fix wrong block state
                                      continue;
                                  }
 diff --git a/net/minecraft/world/entity/monster/piglin/Piglin.java b/net/minecraft/world/entity/monster/piglin/Piglin.java
@@ -301,8 +291,6 @@ index e81ae747fe95c22321fc69791a6509d601826fd6..77bb3aa7ff042aab6464aac55c846cb9
          }
  
          private boolean cannotPickUpBanner() {
--            if (!getServerLevel(this.mob).getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING) || !this.mob.canPickUpLoot()) return false; // Paper - respect game and entity rules for picking up items
-+            if (!this.mob.level().purpurConfig.pillagerBypassMobGriefing == !getServerLevel(this.mob).getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING) || !this.mob.canPickUpLoot()) return false; // Paper - respect game and entity rules for picking up items // Purpur - Add mobGriefing bypass to everything affected
              if (!this.mob.hasActiveRaid()) {
                  return true;
              } else if (this.mob.getCurrentRaid().isOver()) {
@@ -313,8 +301,7 @@ index b370b955ac8636275dfada4f38a7ca10297f7dac..275eabf64977cdf262de55124c3e5f88
 @@ -169,7 +169,7 @@ public class CropBlock extends VegetationBlock implements BonemealableBlock {
      @Override
      protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
-         if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.block.CraftBlock.at(level, pos)).callEvent()) { return; } // Paper - Add EntityInsideBlockEvent
--        if (level instanceof ServerLevel serverLevel && entity instanceof Ravager && serverLevel.purpurConfig.ravagerGriefableBlocks.contains(serverLevel.getBlockState(pos).getBlock()) && org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(entity, pos, Blocks.AIR.defaultBlockState(), !serverLevel.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))) { // CraftBukkit // Purpur - Configurable ravager griefable blocks list
+         if (!new -        if (level instanceof ServerLevel serverLevel && entity instanceof Ravager && serverLevel.purpurConfig.ravagerGriefableBlocks.contains(serverLevel.getBlockState(pos).getBlock()) && org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(entity, pos, Blocks.AIR.defaultBlockState(), !serverLevel.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))) { // CraftBukkit // Purpur - Configurable ravager griefable blocks list
 +        if (level instanceof ServerLevel serverLevel && entity instanceof Ravager && serverLevel.purpurConfig.ravagerGriefableBlocks.contains(serverLevel.getBlockState(pos).getBlock()) && org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(entity, pos, Blocks.AIR.defaultBlockState(), !serverLevel.purpurConfig.ravagerBypassMobGriefing == !serverLevel.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))) { // CraftBukkit // Purpur - Configurable ravager griefable blocks list // Purpur - Add mobGriefing bypass to everything affected
              serverLevel.destroyBlock(pos, true, entity);
          }

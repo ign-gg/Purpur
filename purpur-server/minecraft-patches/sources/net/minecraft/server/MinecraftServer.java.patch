@@ -3,24 +3,15 @@
 @@ -283,6 +_,7 @@
      public joptsimple.OptionSet options;
      public org.bukkit.command.ConsoleCommandSender console;
-     public static int currentTick; // Paper - improve tick loop
 +    public static final long startTimeMillis = System.currentTimeMillis(); // Purpur - Add uptime command
      public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
      public int autosavePeriod;
-     // Paper - don't store the vanilla dispatcher
 @@ -293,7 +_,7 @@
      public static final int TICK_TIME = 1000000000 / MinecraftServer.TPS;
-     private static final int SAMPLE_INTERVAL = 20; // Paper - improve server tick loop
-     @Deprecated(forRemoval = true) // Paper
 -    public final double[] recentTps = new double[3];
 +    public final double[] recentTps = new double[4]; // Purpur - Add 5 second tps average in /tps
      // Spigot end
-     public volatile boolean hasFullyShutdown; // Paper - Improved watchdog support
-     public volatile boolean abnormalExit; // Paper - Improved watchdog support
 @@ -302,6 +_,8 @@
-     public boolean isIteratingOverLevels = false; // Paper - Throw exception on world create while being ticked
-     private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
-     public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
 +    public boolean lagging = false; // Purpur - Lagging threshold
 +    protected boolean upnp = false; // Purpur - UPnP Port Forwarding
  
@@ -29,7 +20,6 @@
 @@ -917,6 +_,15 @@
  
          LOGGER.info("Stopping server");
-         Commands.COMMAND_SENDING_POOL.shutdownNow(); // Paper - Perf: Async command map building; Shutdown and don't bother finishing
 +        // Purpur start - UPnP Port Forwarding
 +        if (upnp) {
 +            if (dev.omega24.upnp4j.UPnP4J.close(this.getPort(), dev.omega24.upnp4j.util.Protocol.TCP)) {
@@ -41,7 +31,6 @@
 +        // Purpur end - UPnP Port Forwarding
          // CraftBukkit start
          if (this.server != null) {
-             this.server.spark.disable(); // Paper - spark
 @@ -1011,6 +_,8 @@
          this.safeShutdown(waitForServer, false);
      }
@@ -49,9 +38,7 @@
 +        org.purpurmc.purpur.task.BossBarTask.stopAll(); // Purpur - Implement TPSBar
 +        org.purpurmc.purpur.task.BeehiveTask.instance().unregister(); // Purpur - Give bee counts in beehives to Purpur clients
          this.isRestarting = isRestarting;
-         this.hasLoggedStop = true; // Paper - Debugging
-         if (isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread("Server stopped"); // Paper - Debugging
-@@ -1030,6 +_,7 @@
+         if (isDebugging()) @@ -1030,6 +_,7 @@
      private static final long MAX_CATCHUP_BUFFER = TICK_TIME * TPS * 60L;
      private long lastTick = 0;
      private long catchupTime = 0;
@@ -61,7 +48,6 @@
      public final RollingAverage tps15 = new RollingAverage(60 * 15);
 @@ -1115,6 +_,16 @@
              }
-             // Paper end - Add onboarding message for initial server start
  
 +            // Purpur start - config for startup commands
 +            if (!Boolean.getBoolean("Purpur.IReallyDontWantStartupCommands") && !org.purpurmc.purpur.PurpurConfig.startupCommands.isEmpty()) {
@@ -98,7 +84,6 @@
 +                    lagging = recentTps[0] < org.purpurmc.purpur.PurpurConfig.laggingThreshold; // Purpur - Lagging threshold
                      tickSection = currentTime;
                  }
-                 // Paper end - further improve server tick loop
 @@ -1171,6 +_,12 @@
                      profilerFiller.popPush("nextTickWait");
                      this.mayHaveDelayedTasks = true;
@@ -125,8 +110,6 @@
  
      @DontObfuscate
      public String getServerModName() {
--        return io.papermc.paper.ServerBuildInfo.buildInfo().brandName(); // Paper
-+        return org.purpurmc.purpur.PurpurConfig.serverModName; // Paper // Purpur - Configurable server mod name
      }
  
      public SystemReport fillSystemReport(SystemReport systemReport) {

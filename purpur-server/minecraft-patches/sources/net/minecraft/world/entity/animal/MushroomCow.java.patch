@@ -11,6 +11,5 @@
 +            cow.yRotO = this.yRotO;
 +            cow.xRotO = this.xRotO;
 +            // Purpur end - Fix cow rotation when shearing mooshroom
-             // Paper start - custom shear drops; moved drop generation to separate method
              drops.forEach(drop -> {
                  this.spawnAtLocation(level, new ItemEntity(this.level(), this.getX(), this.getY(1.0), this.getZ(), drop));

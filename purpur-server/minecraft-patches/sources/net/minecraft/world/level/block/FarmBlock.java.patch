@@ -44,6 +44,5 @@
  
 -        return false;
 +        return ((ServerLevel) level).purpurConfig.farmlandGetsMoistFromBelow && level.getFluidState(pos.relative(Direction.DOWN)).is(FluidTags.WATER); // Purpur - Allow soil to moisten from water directly under it
-         // Paper end - Perf: remove abstract block iteration
      }
  

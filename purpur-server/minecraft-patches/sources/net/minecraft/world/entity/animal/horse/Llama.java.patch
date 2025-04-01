@@ -3,7 +3,6 @@
 @@ -77,6 +_,7 @@
      private Llama caravanHead;
      @Nullable
-     public Llama caravanTail; // Paper
 +    public boolean shouldJoinCaravan = true; // Purpur - Llama API
  
      public Llama(EntityType<? extends Llama> entityType, Level level) {

@@ -3,15 +3,12 @@
 @@ -400,6 +_,7 @@
              scoreboard.addPlayerToTeam(player.getScoreboardName(), collideRuleTeam);
          }
-         // Paper end - Configurable player collision
 +        org.purpurmc.purpur.task.BossBarTask.addToAll(player); // Purpur - Implement TPSBar
          PlayerList.LOGGER.info("{}[{}] logged in with entity id {} at ([{}]{}, {}, {})", player.getName().getString(), loggableAddress, player.getId(), serverLevel.serverLevelData.getLevelName(), player.getX(), player.getY(), player.getZ());
-         // Paper start - Send empty chunk, so players aren't stuck in the world loading screen with our chunk system not sending chunks when dead
          if (player.isDeadOrDying()) {
 @@ -504,6 +_,7 @@
      }
      public @Nullable net.kyori.adventure.text.Component remove(ServerPlayer player, net.kyori.adventure.text.Component leaveMessage) {
-         // Paper end - Fix kick event leave message not being sent
 +        org.purpurmc.purpur.task.BossBarTask.removeFromAll(player.getBukkitEntity()); // Purpur - Implement TPSBar
          ServerLevel serverLevel = player.serverLevel();
          player.awardStat(Stats.LEAVE_GAME);
@@ -22,7 +19,6 @@
              //     : null;
 -            if (this.players.size() >= this.maxPlayers && !this.canBypassPlayerLimit(gameProfile)) {
 +            if (this.players.size() >= this.maxPlayers && !(player.hasPermission("purpur.joinfullserver") || this.canBypassPlayerLimit(gameProfile))) { // Purpur - Allow player join full server by permission
-                 event.disallow(org.bukkit.event.player.PlayerLoginEvent.Result.KICK_FULL, net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(org.spigotmc.SpigotConfig.serverFullMessage)); // Spigot // Paper - Adventure
              }
          }
 @@ -920,6 +_,20 @@
@@ -38,8 +34,7 @@
 +
 +    public void broadcastMessage(@Nullable net.kyori.adventure.text.Component message, boolean overlay) {
 +        if (message != null) {
-+            this.broadcastSystemMessage(io.papermc.paper.adventure.PaperAdventure.asVanilla(message), overlay);
-+        }
++            this.broadcastSystemMessage(+        }
 +    }
 +    // Purpur end - Component related conveniences
 +

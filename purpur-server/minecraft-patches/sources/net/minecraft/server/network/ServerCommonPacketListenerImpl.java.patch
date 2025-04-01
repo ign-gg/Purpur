@@ -9,9 +9,6 @@
      private volatile boolean suspendFlushingOnServerThread = false;
      // CraftBukkit start
 @@ -51,6 +_,7 @@
-     public final java.util.Map<java.util.UUID, net.kyori.adventure.resource.ResourcePackCallback> packCallbacks = new java.util.concurrent.ConcurrentHashMap<>(); // Paper - adventure resource pack callbacks
-     private static final long KEEPALIVE_LIMIT = Long.getLong("paper.playerconnection.keepalive", 30) * 1000; // Paper - provide property to set keepalive limit
-     protected static final net.minecraft.resources.ResourceLocation MINECRAFT_BRAND = net.minecraft.resources.ResourceLocation.withDefaultNamespace("brand"); // Paper - Brand support
 +    protected static final net.minecraft.resources.ResourceLocation PURPUR_CLIENT = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("purpur", "client"); // Purpur - Purpur client support
  
      public ServerCommonPacketListenerImpl(MinecraftServer server, Connection connection, CommonListenerCookie cookie, net.minecraft.server.level.ServerPlayer player) { // CraftBukkit
@@ -47,7 +44,6 @@
                  this.player.clientBrandName = new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.wrappedBuffer(data)).readUtf(256);
              }
 @@ -242,6 +_,22 @@
-         // Paper start - give clients a longer time to respond to pings as per pre 1.12.2 timings
          // This should effectively place the keepalive handling back to "as it was" before 1.12.2
          final long elapsedTime = millis - this.keepAliveTime;
 +

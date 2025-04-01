@@ -8,7 +8,6 @@
 +                if (level.purpurConfig.bedExplode) level.explode(null, level.damageSources().badRespawnPointExplosion(center), null, center, (float) level.purpurConfig.bedExplosionPower, level.purpurConfig.bedExplosionFire, level.purpurConfig.bedExplosionEffect); // Purpur - Implement bed explosion options
                  return InteractionResult.SUCCESS_SERVER;
              } else if (state.getValue(OCCUPIED)) {
-                 if (!BedBlock.canSetSpawn(level)) return this.explodeBed(state, level, pos); // Paper - check explode first
 @@ -146,7 +_,7 @@
          }
  

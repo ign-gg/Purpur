@@ -37,7 +37,6 @@
 @@ -1384,7 +_,11 @@
                      entity.load(tag);
                  },
-                 // Paper end - Don't fire sync event during generation
 -            () -> LOGGER.warn("Skipping Entity with id {}", tag.getStringOr("id", "[invalid]"))
 +            // Purpur start - log skipped entity's position
 +            () -> {LOGGER.warn("Skipping Entity with id {}", tag.getStringOr("id", "[invalid]"));

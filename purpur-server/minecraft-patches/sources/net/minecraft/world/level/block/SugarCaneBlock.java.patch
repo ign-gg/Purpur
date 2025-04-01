@@ -24,7 +24,6 @@
 +            reedHeight++;
 +        }
 +
-+        return reedHeight < ((net.minecraft.world.level.Level) world).paperConfig().maxGrowthHeight.reeds;
 +    }
 +
 +    @Override
@@ -38,7 +37,6 @@
 +        while (world.getBlockState(pos.below(reedHeight)).is(this)) {
 +            reedHeight++;
 +        }
-+        for (int i = 0; i <= world.paperConfig().maxGrowthHeight.reeds - reedHeight; i++) {
 +            world.setBlockAndUpdate(pos.above(i), state.setValue(SugarCaneBlock.AGE, 0));
 +        }
 +    }

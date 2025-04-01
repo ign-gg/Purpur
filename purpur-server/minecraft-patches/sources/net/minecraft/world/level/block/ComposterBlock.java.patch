@@ -6,11 +6,9 @@
          if (levelValue < 8 && COMPOSTABLES.containsKey(stack.getItem())) {
 -            if (levelValue < 7 && !level.isClientSide) {
 -                BlockState blockState = addItem(player, state, level, pos, stack);
--                // Paper start - handle cancelled events
 -                if (blockState == null) {
 -                    return InteractionResult.PASS;
 -                }
--                // Paper end
 -                level.levelEvent(1500, pos, state != blockState ? 1 : 0);
 -                player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
 -                stack.consume(1, player);
@@ -47,11 +45,9 @@
 +    private static @Nullable BlockState process(int levelValue, Player player, BlockState state, Level level, BlockPos pos, ItemStack stack) {
 +        if (levelValue < 7 && !level.isClientSide) {
 +            BlockState iblockdata1 = ComposterBlock.addItem(player, state, level, pos, stack);
-+            // Paper start - handle cancelled events
 +            if (iblockdata1 == null) {
 +                return null;
 +            }
-+            // Paper end
 +
 +            level.levelEvent(1500, pos, state != iblockdata1 ? 1 : 0);
 +            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));

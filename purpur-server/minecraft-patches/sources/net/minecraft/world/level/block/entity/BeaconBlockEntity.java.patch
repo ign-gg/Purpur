@@ -39,6 +39,5 @@
  
 -            if (blockEntity.levels > 0 && !blockEntity.beamSections.isEmpty()) {
 +            if (blockEntity.levels > 0 && (!blockEntity.beamSections.isEmpty() || (level.purpurConfig.beaconAllowEffectsWithTintedGlass && isTintedGlass))) { // Purpur - allow beacon effects when covered by tinted glass
-                 applyEffects(level, pos, blockEntity.levels, blockEntity.primaryPower, blockEntity.secondaryPower, blockEntity); // Paper - Custom beacon ranges
                  playSound(level, pos, SoundEvents.BEACON_AMBIENT);
              }

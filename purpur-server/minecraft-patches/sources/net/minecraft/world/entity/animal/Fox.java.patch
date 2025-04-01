@@ -23,7 +23,6 @@
 @@ -705,6 +_,29 @@
          return slot == EquipmentSlot.MAINHAND;
      }
-     // Paper end
 +
 +    // Purpur start - Tulips change fox type
 +    @Override
@@ -49,4 +48,3 @@
 +    // Purpur end - Tulips change fox type
  
      @Override
-     // Paper start - Cancellable death event

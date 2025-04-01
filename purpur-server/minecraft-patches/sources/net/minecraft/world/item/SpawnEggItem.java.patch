@@ -2,7 +2,6 @@
 +++ b/net/minecraft/world/item/SpawnEggItem.java
 @@ -57,6 +_,23 @@
              if (level.getBlockEntity(clickedPos) instanceof Spawner spawner) {
-                 if (level.paperConfig().entities.spawning.disableMobSpawnerSpawnEggTransformation) return InteractionResult.FAIL; // Paper - Allow disabling mob spawner spawn egg transformation
                  EntityType<?> type = this.getType(level.registryAccess(), itemInHand);
 +                // Purpur start - PlayerSetSpawnerTypeWithEggEvent
 +                if (spawner instanceof net.minecraft.world.level.block.entity.SpawnerBlockEntity) {

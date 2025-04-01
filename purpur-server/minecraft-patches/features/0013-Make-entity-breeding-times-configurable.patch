@@ -36,7 +36,6 @@ index 2ce0099460c14a6dd8b128f268ee915ea4be5183..1cae770340e969ec4f037b9121142878
 @@ -283,8 +284,10 @@ public abstract class Animal extends AgeableMob {
              player.awardStat(Stats.ANIMALS_BRED);
              CriteriaTriggers.BRED_ANIMALS.trigger(player, this, animal, baby);
-         } // Paper - Call EntityBreedEvent
 -        this.setAge(6000);
 -        animal.setAge(6000);
 +        // Purpur start - Make entity breeding times configurable

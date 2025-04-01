@@ -4,10 +4,9 @@
      private boolean trackingStackTrace = true;
      private StackTraceElement[] uncategorizedStackTrace = new StackTraceElement[0];
      private final SystemReport systemReport = new SystemReport();
-+    private List<String> extraInfo = List.of("", "DO NOT REPORT THIS TO PAPER! REPORT TO PURPUR INSTEAD!", ""); // Purpur - Rebrand
++    private List<String> extraInfo = List.of("", "DO NOT REPORT THIS TO SPIGOT! REPORT TO PURPUR INSTEAD!", ""); // Purpur - Rebrand
  
      public CrashReport(String title, Throwable exception) {
-         io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(exception); // Paper
 @@ -130,7 +_,7 @@
      }
  
