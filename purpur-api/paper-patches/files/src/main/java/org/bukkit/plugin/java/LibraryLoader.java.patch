@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/plugin/java/LibraryLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/LibraryLoader.java
-@@ -68,6 +_,7 @@
+@@ -72,6 +_,7 @@
              @Override
              public void transferStarted(@NotNull TransferEvent event) throws TransferCancelledException
              {
@@ -8,7 +8,7 @@
                  logger.log( Level.INFO, "Downloading {0}", event.getResource().getRepositoryUrl() + event.getResource().getResourceName() );
              }
          } );
-@@ -94,6 +_,7 @@
+@@ -98,6 +_,7 @@
          {
              return null;
          }
@@ -16,7 +16,7 @@
          logger.log( Level.INFO, "[{0}] Loading {1} libraries... please wait", new Object[]
          {
              java.util.Objects.requireNonNullElseGet(desc.getPrefix(), desc::getName), desc.getLibraries().size() // Paper - use configured log prefix
-@@ -144,6 +_,7 @@
+@@ -148,6 +_,7 @@
              }
  
              jarFiles.add( url );

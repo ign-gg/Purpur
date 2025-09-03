@@ -30,7 +30,7 @@ index 121b57c7f5345f5d8884eaa1d36dac79fb7d42ef..9afbfe9bf493e09ca1963e8956ab7573
              /* Drop global time updates
              if (this.tickCount % 20 == 0) {
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 63b1b2f920d5f2beb23433a373233aa2f1f95dbb..3c3e8e58cd2761ab2f0652e63f944a5c9a95dca8 100644
+index 291ce2ae3e9cc775029a954237b2dbb39fa3dc19..caa5443df960d2a2e84b1c0424cfe0c42ef9e258 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -217,6 +217,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -42,10 +42,10 @@ index 63b1b2f920d5f2beb23433a373233aa2f1f95dbb..3c3e8e58cd2761ab2f0652e63f944a5c
      public LevelChunk getChunkIfLoaded(int x, int z) {
          return this.chunkSource.getChunkAtIfLoadedImmediately(x, z); // Paper - Use getChunkIfLoadedImmediately
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 6275078467313fe95ae2ae22740135a4b4f39511..7ebecee1de098c218304868b1223b914941cae8a 100644
+index 69d3118b9f372dc7bd346571e7a3117270ce95df..90868f5c9f97bb1796cf99fc4f034efdbb8bcf5b 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -855,6 +855,15 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -848,6 +848,15 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
          this.trackEnteredOrExitedLavaOnVehicle();
          this.updatePlayerAttributes();
          this.advancements.flushDirty(this);
@@ -62,10 +62,10 @@ index 6275078467313fe95ae2ae22740135a4b4f39511..7ebecee1de098c218304868b1223b914
  
      private void updatePlayerAttributes() {
 diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 76487a610e149558b021a6a3f7c6cfccb5e6c674..f9af724c579b9931015d460019cca9ff860750c5 100644
+index f99106d939bd7b63a2751fe692d1405a1b325b0f..517226c73121639d455cc6dcb96f9dbded541bc4 100644
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -2847,6 +2847,8 @@ public class ServerGamePacketListenerImpl
+@@ -2848,6 +2848,8 @@ public class ServerGamePacketListenerImpl
  
                                      ServerGamePacketListenerImpl.this.cserver.getPluginManager().callEvent(event);
  
